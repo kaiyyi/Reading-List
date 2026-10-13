@@ -643,9 +643,105 @@
         animation-iteration-count: 1 !important;
       }
     }
+    /* ===== DARK MODE ===== */
+    .theme-toggle {
+      position: fixed;
+      top: 14px;
+      right: 14px;
+      z-index: 20;
+      padding: 8px 13px;
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      background: var(--paper);
+      color: var(--ink);
+      cursor: pointer;
+      font: 600 0.8rem system-ui, sans-serif;
+    }
+
+    .theme-toggle:hover {
+      background: var(--soft);
+    }
+
+    :root[data-theme="dark"] {
+      color-scheme: dark;
+      --bg: #1b1a17;
+      --paper: #24231f;
+      --ink: #ece8dd;
+      --muted: #a39e8f;
+      --accent: #a7ae83;
+      --line: #3a382f;
+      --soft: #2d2b25;
+      --danger: #e0968a;
+      --read-blue: #8fb4d6;
+    }
+
+    :root[data-theme="dark"] .start-button,
+    :root[data-theme="dark"] .tab-button[aria-selected="true"],
+    :root[data-theme="dark"] .filter-button[aria-pressed="true"],
+    :root[data-theme="dark"] .form-submit {
+      color: #1b1a17;
+    }
+
+    :root[data-theme="dark"] .start-button:hover,
+    :root[data-theme="dark"] .form-submit:hover {
+      background: #bcc398;
+    }
+
+    :root[data-theme="dark"] .empty {
+      border-color: #4a483d;
+    }
+
+    :root[data-theme="dark"] .story-status {
+      background: #26323d;
+      color: #9fc3e3;
+    }  
   </style>
 </head>
 <body class="welcome-active">
+    <button id="theme-toggle" class="theme-toggle" type="button" aria-label="Ganti tema terang atau gelap">Mode gelap</button>
+  <script>
+    (function () {
+      var KEY = "ruangBacaThemeV1";
+      var root = document.documentElement;
+      var button = document.getElementById("theme-toggle");
+      var meta = document.querySelector('meta[name="theme-color"]');
+
+      function readSaved() {
+        try {
+          var value = localStorage.getItem(KEY);
+          return value === "dark" || value === "light" ? value : null;
+        } catch (error) {
+          return null;
+        }
+      }
+
+      function systemTheme() {
+        try {
+          return window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches
+            ? "dark"
+            : "light";
+        } catch (error) {
+          return "light";
+        }
+      }
+
+      function applyTheme(theme) {
+        root.setAttribute("data-theme", theme);
+        if (meta) meta.setAttribute("content", theme === "dark" ? "#1b1a17" : "#f8f6f1");
+        button.textContent = theme === "dark" ? "Mode terang" : "Mode gelap";
+      }
+
+      applyTheme(readSaved() || systemTheme());
+
+      button.addEventListener("click", function () {
+        var next = root.getAttribute("data-theme") === "dark" ? "light" : "dark";
+        applyTheme(next);
+        try {
+          localStorage.setItem(KEY, next);
+        } catch (error) {}
+      });
+    })();
+  </script>
   <section id="welcome-screen" class="welcome-screen" aria-label="Welcome">
     <div class="welcome-content">
       <h1>Hi! Welcome</h1>
