@@ -15,6 +15,7 @@
       --accent: #6d7352;
       --line: #e9e5da;
       --soft: #f0eee6;
+      --danger: #8b4a40;
     }
 
     * { box-sizing: border-box; }
@@ -33,6 +34,15 @@
       padding: 56px 0 72px;
     }
 
+    button, input, textarea {
+      font: inherit;
+    }
+
+    button:disabled {
+      cursor: not-allowed;
+      opacity: 0.48;
+    }
+
     .eyebrow {
       color: var(--accent);
       font: 700 0.75rem/1.4 system-ui, sans-serif;
@@ -41,7 +51,7 @@
     }
 
     h1 {
-      margin: 8px 0 8px;
+      margin: 8px 0;
       font-size: clamp(2.3rem, 7vw, 3.7rem);
       font-weight: 400;
       letter-spacing: -0.045em;
@@ -59,7 +69,7 @@
       display: grid;
       grid-template-columns: 1fr 1fr;
       gap: 12px;
-      margin: 30px 0 34px;
+      margin: 30px 0 26px;
     }
 
     .stat {
@@ -78,8 +88,58 @@
     .stat strong {
       display: block;
       margin-top: 3px;
-      font-size: 1.5rem;
+      font-size: 1.4rem;
       font-weight: 400;
+    }
+
+    .tabs {
+      display: flex;
+      gap: 8px;
+      margin: 26px 0 22px;
+      overflow-x: auto;
+      border-bottom: 1px solid var(--line);
+    }
+
+    .tab-button,
+    .utility-button,
+    .action-button,
+    .quote-save-button,
+    .swap-button,
+    .daily-word-button {
+      border: 1px solid var(--line);
+      border-radius: 9px;
+      background: var(--paper);
+      color: var(--ink);
+      cursor: pointer;
+      font: 600 0.86rem system-ui, sans-serif;
+      padding: 9px 13px;
+      white-space: nowrap;
+    }
+
+    .tab-button {
+      border-bottom-left-radius: 0;
+      border-bottom-right-radius: 0;
+      color: var(--muted);
+    }
+
+    .tab-button[aria-selected="true"] {
+      border-color: var(--accent);
+      background: var(--accent);
+      color: white;
+    }
+
+    .tab-button:not([aria-selected="true"]):hover,
+    .utility-button:hover,
+    .action-button:hover,
+    .quote-save-button:hover,
+    .swap-button:hover,
+    .daily-word-button:hover {
+      background: var(--soft);
+    }
+
+    .view-panel[hidden],
+    .quote-editor[hidden] {
+      display: none;
     }
 
     .section-heading {
@@ -96,13 +156,66 @@
       font-weight: 400;
     }
 
+    h3 {
+      font-weight: 400;
+    }
+
     #today-date {
       color: var(--muted);
       font: 0.82rem system-ui, sans-serif;
       text-align: right;
     }
 
-    .story-list {
+    .daily-word {
+      margin: 0 0 24px;
+      padding: 17px 19px;
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      background: var(--paper);
+    }
+
+    .daily-word-top {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      margin-bottom: 8px;
+    }
+
+    .daily-word h2 {
+      font-size: 1.22rem;
+    }
+
+    .daily-word-button {
+      padding: 6px 10px;
+      color: var(--accent);
+      font-size: 0.78rem;
+    }
+
+    .daily-word-quote {
+      margin: 0 0 8px;
+      white-space: pre-wrap;
+      overflow-wrap: anywhere;
+      font-size: 1.04rem;
+    }
+
+    .daily-word-story {
+      color: var(--accent);
+      font: 600 0.85rem system-ui, sans-serif;
+      text-decoration-thickness: 1px;
+      text-underline-offset: 3px;
+    }
+
+    .daily-word-empty {
+      margin: 0;
+      color: var(--muted);
+      font-size: 0.95rem;
+    }
+
+    .story-list,
+    .saved-list,
+    .custom-story-list,
+    .simple-list {
       display: grid;
       gap: 12px;
     }
@@ -128,15 +241,14 @@
 
     .number {
       flex: 0 0 28px;
+      padding-top: 4px;
       color: var(--accent);
       font: 0.82rem system-ui, sans-serif;
-      padding-top: 4px;
     }
 
     .story h3 {
       margin: 0;
       font-size: 1.12rem;
-      font-weight: 400;
       line-height: 1.45;
     }
 
@@ -144,8 +256,19 @@
       display: flex;
       align-items: center;
       justify-content: space-between;
-      gap: 16px;
+      gap: 12px;
       margin: 15px 0 0 41px;
+    }
+
+    .story-action-buttons,
+    .read-label,
+    .quote-actions,
+    .editor-actions,
+    .backup-actions {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex-wrap: wrap;
     }
 
     .open-link {
@@ -156,9 +279,6 @@
     }
 
     .read-label {
-      display: inline-flex;
-      align-items: center;
-      gap: 8px;
       color: var(--muted);
       cursor: pointer;
       font: 0.85rem system-ui, sans-serif;
@@ -173,89 +293,19 @@
       cursor: pointer;
     }
 
-    .empty {
-      padding: 28px 22px;
-      border: 1px dashed #c9c5b8;
-      border-radius: 14px;
-      color: var(--muted);
-      text-align: center;
-    }
-
-    footer {
-      margin-top: 28px;
-      color: var(--muted);
-      font: 0.78rem/1.6 system-ui, sans-serif;
-      text-align: center;
-    }
-
-    /* Tambahan fitur kutipan, tab, dan backup/restore */
-    .tabs {
-      display: flex;
-      gap: 8px;
-      margin: 28px 0 22px;
-      border-bottom: 1px solid var(--line);
-    }
-
-    .tab-button,
-    .utility-button,
-    .action-button,
-    .quote-save-button {
-      border: 1px solid var(--line);
-      border-radius: 9px;
-      background: var(--paper);
-      color: var(--ink);
-      cursor: pointer;
-      font: 600 0.86rem system-ui, sans-serif;
-      padding: 9px 13px;
-    }
-
-    .tab-button {
-      border-bottom-left-radius: 0;
-      border-bottom-right-radius: 0;
-      color: var(--muted);
-    }
-
-    .tab-button[aria-selected="true"] {
-      border-color: var(--accent);
-      background: var(--accent);
-      color: white;
-    }
-
-    .saved-toolbar {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      flex-wrap: wrap;
-      gap: 12px;
-      margin: 0 0 16px;
-    }
-
-    .saved-search {
-      flex: 1 1 220px;
-      min-width: 0;
-      padding: 11px 13px;
-      border: 1px solid var(--line);
-      border-radius: 9px;
-      background: var(--paper);
-      color: var(--ink);
-      font: 0.9rem system-ui, sans-serif;
-    }
-
-    .backup-actions {
-      display: flex;
-      gap: 8px;
-    }
-
-    .utility-button:hover,
-    .action-button:hover,
-    .quote-save-button:hover,
-    .tab-button:not([aria-selected="true"]):hover {
-      background: var(--soft);
-    }
-
     .quote-save-button {
       border-color: var(--accent);
       color: var(--accent);
+    }
+
+    .swap-button {
+      padding: 7px 10px;
+    }
+
+    .story-message {
+      margin: 9px 0 0 41px;
+      color: var(--muted);
+      font: 0.8rem system-ui, sans-serif;
     }
 
     .quote-editor {
@@ -268,20 +318,19 @@
       background: var(--bg);
     }
 
-    .quote-editor[hidden],
-    .view-panel[hidden] {
-      display: none;
-    }
-
-    .quote-editor textarea {
+    .quote-editor textarea,
+    .form-field input {
       width: 100%;
-      min-height: 120px;
-      resize: vertical;
       padding: 11px 12px;
       border: 1px solid var(--line);
       border-radius: 9px;
       background: var(--paper);
       color: var(--ink);
+    }
+
+    .quote-editor textarea {
+      min-height: 120px;
+      resize: vertical;
       font: 1rem/1.55 Georgia, "Times New Roman", serif;
     }
 
@@ -295,21 +344,34 @@
       font: 0.9rem system-ui, sans-serif;
     }
 
-    .editor-actions,
-    .quote-actions {
+    .saved-toolbar {
       display: flex;
       align-items: center;
-      gap: 8px;
+      justify-content: space-between;
       flex-wrap: wrap;
-    }
-
-    .saved-list {
-      display: grid;
       gap: 12px;
+      margin-bottom: 16px;
     }
 
-    .quote-card {
-      padding: 19px 20px;
+    .saved-search {
+      flex: 1 1 220px;
+      min-width: 0;
+      padding: 11px 13px;
+      border: 1px solid var(--line);
+      border-radius: 9px;
+      background: var(--paper);
+      color: var(--ink);
+      font: 0.9rem system-ui, sans-serif;
+    }
+
+    .backup-actions input[type="file"] {
+      display: none;
+    }
+
+    .quote-card,
+    .custom-story-card,
+    .stat-card {
+      padding: 18px 20px;
       border: 1px solid var(--line);
       border-radius: 14px;
       background: var(--paper);
@@ -336,29 +398,137 @@
     }
 
     .action-button.delete {
-      color: #8b4a40;
+      color: var(--danger);
     }
 
     .notice {
+      min-height: 1.4em;
       margin: 0 0 14px;
       color: var(--muted);
       font: 0.88rem system-ui, sans-serif;
     }
 
-    .backup-actions input[type="file"] {
-      display: none;
+    .empty {
+      padding: 28px 22px;
+      border: 1px dashed #c9c5b8;
+      border-radius: 14px;
+      color: var(--muted);
+      text-align: center;
     }
 
-    @media (max-width: 480px) {
+    .form-card {
+      display: grid;
+      gap: 14px;
+      margin-bottom: 24px;
+      padding: 19px 20px;
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      background: var(--paper);
+    }
+
+    .form-field {
+      display: grid;
+      gap: 6px;
+      color: var(--muted);
+      font: 0.86rem system-ui, sans-serif;
+    }
+
+    .form-field input {
+      font: 0.95rem system-ui, sans-serif;
+    }
+
+    .form-submit {
+      justify-self: start;
+      border-color: var(--accent);
+      background: var(--accent);
+      color: #fff;
+    }
+
+    .form-submit:hover {
+      background: #59603f;
+    }
+
+    .form-message {
+      min-height: 1.4em;
+      margin: 0;
+      color: var(--muted);
+      font: 0.88rem system-ui, sans-serif;
+    }
+
+    .form-message.error {
+      color: var(--danger);
+    }
+
+    .custom-story-title {
+      margin: 0 0 5px;
+      font-size: 1.04rem;
+    }
+
+    .custom-story-url {
+      display: block;
+      margin-bottom: 12px;
+      color: var(--accent);
+      font: 0.82rem system-ui, sans-serif;
+      overflow-wrap: anywhere;
+    }
+
+    .stat-card h3 {
+      margin: 0 0 10px;
+      font-size: 1.05rem;
+    }
+
+    .stat-summary {
+      display: grid;
+      gap: 8px;
+      margin: 0;
+      padding: 0;
+      list-style: none;
+      font: 0.92rem system-ui, sans-serif;
+    }
+
+    .simple-list {
+      margin: 0;
+      padding-left: 1.6rem;
+      font: 0.92rem system-ui, sans-serif;
+    }
+
+    .simple-list li {
+      padding-left: 3px;
+    }
+
+    .list-count {
+      color: var(--accent);
+      font-weight: 700;
+    }
+
+    footer {
+      margin-top: 28px;
+      color: var(--muted);
+      font: 0.78rem/1.6 system-ui, sans-serif;
+      text-align: center;
+    }
+
+    @media (max-width: 600px) {
       main { padding-top: 38px; }
+      .tabs { gap: 6px; }
+      .tab-button { padding: 8px 10px; font-size: 0.78rem; }
       .story { padding: 16px; }
-      .story-actions { margin-left: 0; }
-      .section-heading { align-items: flex-start; flex-direction: column; }
-      #today-date { text-align: left; }
+      .story-actions {
+        align-items: flex-start;
+        flex-direction: column;
+        margin-left: 0;
+      }
+      .story-message { margin-left: 0; }
       .quote-editor { margin-left: 0; }
+      .section-heading {
+        align-items: flex-start;
+        flex-direction: column;
+      }
+      #today-date { text-align: left; }
       .saved-toolbar { align-items: stretch; }
       .backup-actions { width: 100%; }
       .backup-actions button { flex: 1; }
+      .daily-word-top { align-items: flex-start; }
     }
   </style>
 </head>
@@ -384,9 +554,19 @@
     <nav class="tabs" aria-label="Navigasi halaman">
       <button class="tab-button" id="today-tab" type="button" aria-selected="true">Cerita Hari Ini</button>
       <button class="tab-button" id="saved-tab" type="button" aria-selected="false">Saved</button>
+      <button class="tab-button" id="add-tab" type="button" aria-selected="false">Tambah Cerita</button>
+      <button class="tab-button" id="stats-tab" type="button" aria-selected="false">Statistik</button>
     </nav>
 
     <section id="today-panel" class="view-panel" aria-labelledby="list-heading">
+      <article class="daily-word" aria-labelledby="daily-word-heading">
+        <div class="daily-word-top">
+          <h2 id="daily-word-heading">Kata Hari Ini</h2>
+          <button id="shuffle-daily-word" class="daily-word-button" type="button">Acak lagi</button>
+        </div>
+        <div id="daily-word-content"></div>
+      </article>
+
       <div class="section-heading">
         <h2 id="list-heading">Daftar bacaan</h2>
         <span id="today-date"></span>
@@ -418,12 +598,44 @@
       <div id="saved-list" class="saved-list"></div>
     </section>
 
-    <footer>Progres tersimpan di browser ini. Jika data browser dihapus atau kamu memakai perangkat lain, progres tidak ikut berpindah.</footer>
+    <section id="add-panel" class="view-panel" aria-labelledby="add-heading" hidden>
+      <div class="section-heading">
+        <h2 id="add-heading">Tambah Cerita</h2>
+      </div>
+
+      <form id="add-story-form" class="form-card" novalidate>
+        <label class="form-field">
+          Judul
+          <input id="new-story-title" name="title" type="text" autocomplete="off" required>
+        </label>
+
+        <label class="form-field">
+          Link
+          <input id="new-story-url" name="url" type="url" inputmode="url" placeholder="https://..." required>
+        </label>
+
+        <button class="utility-button form-submit" type="submit">Tambah</button>
+        <p id="add-story-message" class="form-message" aria-live="polite"></p>
+      </form>
+
+      <div class="section-heading">
+        <h2>Cerita tambahan</h2>
+      </div>
+      <div id="custom-story-list" class="custom-story-list"></div>
+    </section>
+
+    <section id="stats-panel" class="view-panel" aria-labelledby="stats-heading" hidden>
+      <div class="section-heading">
+        <h2 id="stats-heading">Statistik</h2>
+      </div>
+      <div id="statistics-content" class="saved-list"></div>
+    </section>
+
+    <footer>Progres, kutipan, dan cerita tambahan tersimpan di browser ini. Gunakan Backup untuk menyimpan salinan data.</footer>
   </main>
 
   <script>
-    // EDIT DAFTAR CERITA DI BAGIAN INI.
-    // Untuk menambah cerita, salin satu baris, lalu ganti judul dan URL-nya.
+    // Cerita bawaan. Cerita tambahan dari formulir disimpan terpisah.
     const STORIES = [
       { title: "Love Letters to the Girls Who Are Too Hard on Themselves", url: "https://substack.com/@leidiinspired/note/p-155844060?utm_source=notes-share-action&r=96stsm" },
       { title: "Bila tubuhku membiru akankah kau datang, sayang ?", url: "https://substack.com/@senyapkalbu/note/p-206531509?utm_source=notes-share-action&r=96stsm" },
@@ -479,8 +691,10 @@
 
     const STORAGE_KEY = "ruangBacaProgressV1";
     const QUOTES_STORAGE_KEY = "ruangBacaQuotesV1";
+    const CUSTOM_STORIES_STORAGE_KEY = "ruangBacaCustomStoriesV1";
+    const DAILY_WORD_STORAGE_KEY = "ruangBacaDailyWordV1";
     const DAILY_COUNT = 5;
-    const BACKUP_VERSION = 1;
+    const BACKUP_VERSION = 2;
 
     function safeGetItem(key) {
       try {
@@ -509,9 +723,17 @@
       return `${year}-${month}-${day}`;
     }
 
+    function createId() {
+      if (window.crypto && typeof window.crypto.randomUUID === "function") {
+        return window.crypto.randomUUID();
+      }
+      return `${Date.now()}-${Math.random().toString(16).slice(2)}`;
+    }
+
     function loadState() {
       try {
-        const saved = JSON.parse(safeGetItem(STORAGE_KEY));
+        const raw = safeGetItem(STORAGE_KEY);
+        const saved = raw ? JSON.parse(raw) : null;
         if (saved && typeof saved === "object") return saved;
       } catch (error) {
         console.warn("Data progres tidak dapat dibaca.", error);
@@ -525,24 +747,94 @@
 
     function loadQuotes() {
       try {
-        const saved = JSON.parse(safeGetItem(QUOTES_STORAGE_KEY));
-        if (Array.isArray(saved)) {
-          return saved.filter(item =>
+        const raw = safeGetItem(QUOTES_STORAGE_KEY);
+        const saved = raw ? JSON.parse(raw) : [];
+        if (!Array.isArray(saved)) return [];
+
+        return saved
+          .filter(item =>
             item &&
             typeof item.text === "string" &&
             Number.isInteger(item.storyId) &&
-            item.storyId >= 0 &&
-            item.storyId < STORIES.length
-          );
-        }
+            item.storyId >= 0
+          )
+          .map(item => ({
+            id: typeof item.id === "string" ? item.id : createId(),
+            text: item.text,
+            storyId: item.storyId,
+            createdAt: typeof item.createdAt === "string" ? item.createdAt : ""
+          }));
       } catch (error) {
         console.warn("Data kutipan tidak dapat dibaca.", error);
+        return [];
       }
-      return [];
     }
 
     function saveQuotes() {
       return safeSetItem(QUOTES_STORAGE_KEY, JSON.stringify(quotes));
+    }
+
+    function loadCustomStories() {
+      try {
+        const raw = safeGetItem(CUSTOM_STORIES_STORAGE_KEY);
+        const saved = raw ? JSON.parse(raw) : [];
+        if (!Array.isArray(saved)) return [];
+
+        return saved
+          .filter(item =>
+            item &&
+            typeof item.title === "string" &&
+            typeof item.url === "string" &&
+            /^https?:\/\//i.test(item.url)
+          )
+          .map(item => ({
+            id: typeof item.id === "string" ? item.id : createId(),
+            title: item.title.trim(),
+            url: item.url.trim()
+          }))
+          .filter(item => item.title && item.url);
+      } catch (error) {
+        console.warn("Data cerita tambahan tidak dapat dibaca.", error);
+        return [];
+      }
+    }
+
+    function saveCustomStories() {
+      return safeSetItem(CUSTOM_STORIES_STORAGE_KEY, JSON.stringify(customStories));
+    }
+
+    let state = loadState();
+    let quotes = loadQuotes();
+    let customStories = loadCustomStories();
+    let dailyWord = loadDailyWord();
+
+    function getAllStories() {
+      return STORIES.concat(customStories);
+    }
+
+    function getStoryById(id) {
+      return getAllStories()[id] || null;
+    }
+
+    function loadDailyWord() {
+      try {
+        const raw = safeGetItem(DAILY_WORD_STORAGE_KEY);
+        const saved = raw ? JSON.parse(raw) : null;
+        if (
+          saved &&
+          typeof saved.date === "string" &&
+          typeof saved.quoteId === "string"
+        ) {
+          return saved;
+        }
+      } catch (error) {
+        console.warn("Kata hari ini tidak dapat dibaca.", error);
+      }
+      return { date: "", quoteId: "" };
+    }
+
+    function saveDailyWord() {
+      return safeSetItem(DAILY_WORD_STORAGE_KEY, JSON.stringify(dailyWord));
     }
 
     function shuffle(items) {
@@ -554,48 +846,147 @@
       return result;
     }
 
-    let state = loadState();
-    let quotes = loadQuotes();
-
-    function prepareToday() {
-      const today = getLocalDateKey();
-      const validIds = new Set(STORIES.map((_, index) => index));
+    function normalizeState() {
+      const allStories = getAllStories();
+      const validIds = new Set(allStories.map((_, index) => index));
 
       state.read = Array.isArray(state.read)
-        ? [...new Set(state.read)].filter(id => validIds.has(id))
+        ? [...new Set(state.read)].filter(id => Number.isInteger(id) && validIds.has(id))
         : [];
       state.round = Math.max(1, Number(state.round) || 1);
+      state.today = typeof state.today === "string" ? state.today : "";
+      state.todayIds = Array.isArray(state.todayIds)
+        ? [...new Set(state.todayIds)].filter(id => Number.isInteger(id) && validIds.has(id))
+        : [];
 
-      if (STORIES.length > 0 && state.read.length >= STORIES.length) {
+      quotes = quotes.filter(quote => quote.storyId >= 0 && quote.storyId < allStories.length);
+    }
+
+    function prepareToday() {
+      normalizeState();
+
+      const today = getLocalDateKey();
+      const allStories = getAllStories();
+
+      if (allStories.length > 0 && state.read.length >= allStories.length) {
         state.read = [];
         state.round += 1;
         state.today = "";
         state.todayIds = [];
       }
 
-      const savedTodayIds = Array.isArray(state.todayIds)
-        ? state.todayIds.filter(id => validIds.has(id))
-        : [];
-
-      if (state.today !== today || savedTodayIds.length === 0) {
-        const unread = STORIES
+      if (state.today !== today) {
+        const unread = allStories
           .map((_, index) => index)
           .filter(id => !state.read.includes(id));
 
         state.today = today;
         state.todayIds = shuffle(unread).slice(0, DAILY_COUNT);
       } else {
-        state.todayIds = savedTodayIds;
+        state.todayIds = state.todayIds
+          .filter(id => id >= 0 && id < allStories.length && !state.read.includes(id))
+          .slice(0, DAILY_COUNT);
+
+        const needed = Math.min(DAILY_COUNT, allStories.length - state.read.length) - state.todayIds.length;
+        if (needed > 0) {
+          const available = allStories
+            .map((_, index) => index)
+            .filter(id => !state.read.includes(id) && !state.todayIds.includes(id));
+
+          state.todayIds.push(...shuffle(available).slice(0, needed));
+        }
       }
 
       saveState();
+    }
+
+    function setActiveTab(tabName) {
+      const tabs = [
+        ["today", "today-tab", "today-panel"],
+        ["saved", "saved-tab", "saved-panel"],
+        ["add", "add-tab", "add-panel"],
+        ["stats", "stats-tab", "stats-panel"]
+      ];
+
+      tabs.forEach(([name, buttonId, panelId]) => {
+        const active = name === tabName;
+        document.getElementById(buttonId).setAttribute("aria-selected", String(active));
+        document.getElementById(panelId).hidden = !active;
+      });
+
+      if (tabName === "saved") renderSaved();
+      if (tabName === "add") renderCustomStories();
+      if (tabName === "stats") renderStatistics();
+    }
+
+    function selectRandomQuote(excludeId = "") {
+      if (quotes.length === 0) {
+        dailyWord = { date: getLocalDateKey(), quoteId: "" };
+        saveDailyWord();
+        return;
+      }
+
+      let choices = quotes.filter(quote => quote.id !== excludeId);
+      if (choices.length === 0) choices = quotes;
+
+      const choice = choices[Math.floor(Math.random() * choices.length)];
+      dailyWord = { date: getLocalDateKey(), quoteId: choice.id };
+      saveDailyWord();
+    }
+
+    function prepareDailyWord() {
+      const today = getLocalDateKey();
+      const currentQuoteExists = quotes.some(quote => quote.id === dailyWord.quoteId);
+
+      if (quotes.length === 0) {
+        dailyWord = { date: today, quoteId: "" };
+        saveDailyWord();
+        return;
+      }
+
+      if (dailyWord.date !== today || !currentQuoteExists) {
+        selectRandomQuote();
+      }
+    }
+
+    function renderDailyWord() {
+      prepareDailyWord();
+
+      const container = document.getElementById("daily-word-content");
+      container.replaceChildren();
+
+      const quote = quotes.find(item => item.id === dailyWord.quoteId);
+      if (!quote) {
+        const empty = document.createElement("p");
+        empty.className = "daily-word-empty";
+        empty.textContent = "Belum ada kata. Tekan BHAAAPP di salah satu cerita untuk mulai mengoleksi.";
+        container.appendChild(empty);
+        return;
+      }
+
+      const story = getStoryById(quote.storyId);
+
+      const text = document.createElement("p");
+      text.className = "daily-word-quote";
+      text.textContent = quote.text;
+      container.appendChild(text);
+
+      if (story) {
+        const link = document.createElement("a");
+        link.className = "daily-word-story";
+        link.href = story.url;
+        link.target = "_blank";
+        link.rel = "noopener noreferrer";
+        link.textContent = story.title;
+        container.appendChild(link);
+      }
     }
 
     function makeStorySelect(selectedId) {
       const select = document.createElement("select");
       select.setAttribute("aria-label", "Pilih cerita untuk kutipan");
 
-      STORIES.forEach((story, index) => {
+      getAllStories().forEach((story, index) => {
         const option = document.createElement("option");
         option.value = String(index);
         option.textContent = story.title;
@@ -613,11 +1004,12 @@
       const todayIds = state.todayIds;
       const readSet = new Set(state.read);
       const readToday = todayIds.filter(id => readSet.has(id)).length;
+      const allStories = getAllStories();
 
       document.getElementById("today-progress").textContent =
         `${readToday} dari ${todayIds.length}`;
       document.getElementById("total-progress").textContent =
-        `${state.read.length} dari ${STORIES.length} · Putaran ${state.round}`;
+        `${state.read.length} dari ${allStories.length} · Putaran ${state.round}`;
 
       document.getElementById("today-date").textContent =
         new Intl.DateTimeFormat("id-ID", {
@@ -627,18 +1019,23 @@
           year: "numeric"
         }).format(new Date());
 
+      renderDailyWord();
       list.replaceChildren();
 
       if (todayIds.length === 0) {
         const empty = document.createElement("div");
         empty.className = "empty";
-        empty.textContent = "Belum ada cerita di daftar. Tambahkan cerita di bagian STORIES pada kode.";
+        empty.textContent = allStories.length === 0
+          ? "Belum ada cerita. Tambahkan cerita melalui tab Tambah Cerita."
+          : "Semua cerita sudah dibaca. Progres akan dimulai lagi pada putaran berikutnya.";
         list.appendChild(empty);
         return;
       }
 
       todayIds.forEach((id, position) => {
-        const story = STORIES[id];
+        const story = allStories[id];
+        if (!story) return;
+
         const isRead = readSet.has(id);
         const article = document.createElement("article");
         article.className = `story${isRead ? " is-read" : ""}`;
@@ -652,7 +1049,6 @@
 
         const title = document.createElement("h3");
         title.textContent = story.title;
-
         top.append(number, title);
 
         const actions = document.createElement("div");
@@ -665,13 +1061,19 @@
         link.rel = "noopener noreferrer";
         link.textContent = "Buka cerita ↗";
 
-        const rightActions = document.createElement("div");
-        rightActions.className = "editor-actions";
+        const actionButtons = document.createElement("div");
+        actionButtons.className = "story-action-buttons";
 
         const saveQuoteButton = document.createElement("button");
         saveQuoteButton.className = "quote-save-button";
         saveQuoteButton.type = "button";
         saveQuoteButton.textContent = "BHAAAPP";
+
+        const swapButton = document.createElement("button");
+        swapButton.className = "swap-button";
+        swapButton.type = "button";
+        swapButton.textContent = "Tukar";
+        swapButton.disabled = isRead;
 
         const label = document.createElement("label");
         label.className = "read-label";
@@ -689,14 +1091,48 @@
           }
           saveState();
           render();
+          renderStatistics();
         });
 
         const labelText = document.createElement("span");
         labelText.textContent = "Sudah dibaca";
-
         label.append(checkbox, labelText);
-        rightActions.append(saveQuoteButton, label);
-        actions.append(link, rightActions);
+
+        const message = document.createElement("p");
+        message.className = "story-message";
+        message.hidden = true;
+
+        swapButton.addEventListener("click", () => {
+          if (state.read.includes(id)) return;
+
+          const available = getAllStories()
+            .map((_, candidateId) => candidateId)
+            .filter(candidateId =>
+              !state.read.includes(candidateId) &&
+              !state.todayIds.includes(candidateId)
+            );
+
+          if (available.length === 0) {
+            message.textContent = "Tidak ada cerita lain yang belum dibaca untuk ditukar.";
+            message.hidden = false;
+            return;
+          }
+
+          const replacement = available[Math.floor(Math.random() * available.length)];
+          state.todayIds[position] = replacement;
+
+          if (!saveState()) {
+            state.todayIds[position] = id;
+            message.textContent = "Perubahan tidak dapat disimpan di browser.";
+            message.hidden = false;
+            return;
+          }
+
+          render();
+        });
+
+        actionButtons.append(saveQuoteButton, swapButton, label);
+        actions.append(link, actionButtons);
 
         const editor = document.createElement("form");
         editor.className = "quote-editor";
@@ -741,20 +1177,29 @@
             return;
           }
 
-          quotes.unshift({
+          const quote = {
             id: createId(),
             text,
             storyId: Number(storySelect.value),
             createdAt: new Date().toISOString()
-          });
+          };
+
+          quotes.unshift(quote);
 
           if (!saveQuotes()) {
-            quotes.shift();
+            quotes = quotes.filter(item => item.id !== quote.id);
             alert("Kutipan tidak dapat disimpan. Periksa ruang penyimpanan browser.");
             return;
           }
 
+          if (!dailyWord.quoteId) {
+            dailyWord = { date: getLocalDateKey(), quoteId: quote.id };
+            saveDailyWord();
+          }
+
           renderSaved();
+          renderDailyWord();
+          renderStatistics();
           editor.reset();
           storySelect.value = String(id);
           editor.hidden = true;
@@ -762,16 +1207,9 @@
 
         editorActions.append(saveButton, cancelButton);
         editor.append(quoteInput, storySelect, editorActions);
-        article.append(top, actions, editor);
+        article.append(top, actions, message, editor);
         list.appendChild(article);
       });
-    }
-
-    function createId() {
-      if (window.crypto && typeof window.crypto.randomUUID === "function") {
-        return window.crypto.randomUUID();
-      }
-      return `${Date.now()}-${Math.random().toString(16).slice(2)}`;
     }
 
     function renderSaved() {
@@ -780,7 +1218,7 @@
       list.replaceChildren();
 
       const filtered = quotes.filter(quote => {
-        const story = STORIES[quote.storyId];
+        const story = getStoryById(quote.storyId);
         const title = story ? story.title : "";
         return quote.text.toLocaleLowerCase("id").includes(query) ||
           title.toLocaleLowerCase("id").includes(query);
@@ -797,7 +1235,7 @@
       }
 
       filtered.forEach(quote => {
-        const story = STORIES[quote.storyId];
+        const story = getStoryById(quote.storyId);
         const card = document.createElement("article");
         card.className = "quote-card";
 
@@ -808,12 +1246,11 @@
         const storyLink = document.createElement("a");
         storyLink.className = "quote-story-link";
         storyLink.textContent = story ? story.title : "Cerita tidak ditemukan";
+
         if (story) {
           storyLink.href = story.url;
           storyLink.target = "_blank";
           storyLink.rel = "noopener noreferrer";
-        } else {
-          storyLink.removeAttribute("href");
         }
 
         const actions = document.createElement("div");
@@ -823,6 +1260,7 @@
         copyButton.className = "action-button";
         copyButton.type = "button";
         copyButton.textContent = "Copy";
+
         copyButton.addEventListener("click", async () => {
           try {
             await navigator.clipboard.writeText(quote.text);
@@ -852,17 +1290,26 @@
         deleteButton.className = "action-button delete";
         deleteButton.type = "button";
         deleteButton.textContent = "Hapus";
+
         deleteButton.addEventListener("click", () => {
           if (!confirm("Hapus kutipan ini?")) return;
 
-          const oldQuotes = quotes;
+          const previousQuotes = quotes;
           quotes = quotes.filter(item => item.id !== quote.id);
+
           if (!saveQuotes()) {
-            quotes = oldQuotes;
+            quotes = previousQuotes;
             alert("Kutipan tidak dapat dihapus dari penyimpanan browser.");
             return;
           }
+
+          if (dailyWord.quoteId === quote.id) {
+            selectRandomQuote(quote.id);
+          }
+
           renderSaved();
+          renderDailyWord();
+          renderStatistics();
         });
 
         actions.append(copyButton, deleteButton);
@@ -871,13 +1318,262 @@
       });
     }
 
-    function setActiveTab(tab) {
-      const isSaved = tab === "saved";
-      document.getElementById("today-tab").setAttribute("aria-selected", String(!isSaved));
-      document.getElementById("saved-tab").setAttribute("aria-selected", String(isSaved));
-      document.getElementById("today-panel").hidden = isSaved;
-      document.getElementById("saved-panel").hidden = !isSaved;
-      if (isSaved) renderSaved();
+    function addStory(event) {
+      event.preventDefault();
+
+      const titleInput = document.getElementById("new-story-title");
+      const urlInput = document.getElementById("new-story-url");
+      const message = document.getElementById("add-story-message");
+
+      const title = titleInput.value.trim();
+      const url = urlInput.value.trim();
+
+      message.classList.remove("error");
+
+      if (!title) {
+        showAddMessage("Judul tidak boleh kosong.", true);
+        titleInput.focus();
+        return;
+      }
+
+      if (!/^https?:\/\//i.test(url)) {
+        showAddMessage("Link harus diawali http:// atau https://.", true);
+        urlInput.focus();
+        return;
+      }
+
+      const duplicate = getAllStories().some(story =>
+        story.url.trim().toLowerCase() === url.toLowerCase()
+      );
+
+      if (duplicate) {
+        showAddMessage("Link tersebut sudah ada di daftar cerita.", true);
+        urlInput.focus();
+        return;
+      }
+
+      const newStory = { id: createId(), title, url };
+      customStories.push(newStory);
+
+      if (!saveCustomStories()) {
+        customStories = customStories.filter(story => story.id !== newStory.id);
+        showAddMessage("Cerita tidak dapat disimpan. Periksa ruang penyimpanan browser.", true);
+        return;
+      }
+
+      showAddMessage("Cerita berhasil ditambahkan.");
+      document.getElementById("add-story-form").reset();
+
+      render();
+      renderCustomStories();
+      renderStatistics();
+    }
+
+    function showAddMessage(text, isError = false) {
+      const message = document.getElementById("add-story-message");
+      message.textContent = text;
+      message.classList.toggle("error", isError);
+    }
+
+    function renderCustomStories() {
+      const list = document.getElementById("custom-story-list");
+      list.replaceChildren();
+
+      if (customStories.length === 0) {
+        const empty = document.createElement("div");
+        empty.className = "empty";
+        empty.textContent = "Belum ada cerita tambahan.";
+        list.appendChild(empty);
+        return;
+      }
+
+      customStories.forEach(customStory => {
+        const card = document.createElement("article");
+        card.className = "custom-story-card";
+
+        const title = document.createElement("h3");
+        title.className = "custom-story-title";
+        title.textContent = customStory.title;
+
+        const link = document.createElement("a");
+        link.className = "custom-story-url";
+        link.href = customStory.url;
+        link.target = "_blank";
+        link.rel = "noopener noreferrer";
+        link.textContent = customStory.url;
+
+        const deleteButton = document.createElement("button");
+        deleteButton.className = "action-button delete";
+        deleteButton.type = "button";
+        deleteButton.textContent = "Hapus";
+
+        deleteButton.addEventListener("click", () => {
+          if (!confirm(`Hapus cerita "${customStory.title}"?`)) return;
+
+          const removedIndex = STORIES.length + customStories.findIndex(item => item.id === customStory.id);
+          const previousCustomStories = customStories;
+          const previousState = JSON.parse(JSON.stringify(state));
+          const previousQuotes = quotes;
+
+          customStories = customStories.filter(item => item.id !== customStory.id);
+
+          state.read = state.read
+            .filter(id => id !== removedIndex)
+            .map(id => id > removedIndex ? id - 1 : id);
+
+          state.todayIds = state.todayIds
+            .filter(id => id !== removedIndex)
+            .map(id => id > removedIndex ? id - 1 : id);
+
+          quotes = quotes
+            .filter(quote => quote.storyId !== removedIndex)
+            .map(quote => ({
+              ...quote,
+              storyId: quote.storyId > removedIndex ? quote.storyId - 1 : quote.storyId
+            }));
+
+          if (dailyWord.quoteId && !quotes.some(quote => quote.id === dailyWord.quoteId)) {
+            dailyWord = { date: getLocalDateKey(), quoteId: "" };
+          }
+
+          const customSaved = saveCustomStories();
+          const progressSaved = saveState();
+          const quotesSaved = saveQuotes();
+          const dailySaved = saveDailyWord();
+
+          if (!customSaved || !progressSaved || !quotesSaved || !dailySaved) {
+            customStories = previousCustomStories;
+            state = previousState;
+            quotes = previousQuotes;
+            saveCustomStories();
+            saveState();
+            saveQuotes();
+            saveDailyWord();
+            alert("Perubahan tidak dapat disimpan. Data sebelumnya dipulihkan jika memungkinkan.");
+            return;
+          }
+
+          render();
+          renderCustomStories();
+          renderSaved();
+          renderStatistics();
+        });
+
+        card.append(title, link, deleteButton);
+        list.appendChild(card);
+      });
+    }
+
+    function getAuthorName(url) {
+      try {
+        const parsed = new URL(url);
+        const match = parsed.hostname.toLowerCase().match(/(^|\.)substack\.com$/);
+        if (!match) return "Lainnya";
+
+        const pathMatch = parsed.pathname.match(/^\/@([^/]+)/);
+        return pathMatch ? `@${decodeURIComponent(pathMatch[1])}` : "Lainnya";
+      } catch (error) {
+        return "Lainnya";
+      }
+    }
+
+    function makeRankedList(entries, emptyText) {
+      if (entries.length === 0) {
+        const empty = document.createElement("p");
+        empty.className = "notice";
+        empty.textContent = emptyText;
+        return empty;
+      }
+
+      const list = document.createElement("ol");
+      list.className = "simple-list";
+
+      entries.forEach(entry => {
+        const item = document.createElement("li");
+        item.append(document.createTextNode(`${entry.label} — `));
+
+        const count = document.createElement("span");
+        count.className = "list-count";
+        count.textContent = String(entry.count);
+
+        item.appendChild(count);
+        list.appendChild(item);
+      });
+
+      return list;
+    }
+
+    function renderStatistics() {
+      const container = document.getElementById("statistics-content");
+      container.replaceChildren();
+
+      const allStories = getAllStories();
+      normalizeState();
+
+      const totalCard = document.createElement("article");
+      totalCard.className = "stat-card";
+
+      const totalHeading = document.createElement("h3");
+      totalHeading.textContent = "Progres membaca";
+
+      const summary = document.createElement("ul");
+      summary.className = "stat-summary";
+
+      const summaryItems = [
+        `Total cerita di daftar: ${allStories.length}`,
+        `Sudah dibaca di putaran ini: ${state.read.length} dari ${allStories.length}`,
+        `Nomor putaran: ${state.round}`,
+        `Kutipan tersimpan: ${quotes.length}`
+      ];
+
+      summaryItems.forEach(text => {
+        const item = document.createElement("li");
+        item.textContent = text;
+        summary.appendChild(item);
+      });
+
+      totalCard.append(totalHeading, summary);
+
+      const authorCounts = new Map();
+      allStories.forEach(story => {
+        const author = getAuthorName(story.url);
+        authorCounts.set(author, (authorCounts.get(author) || 0) + 1);
+      });
+
+      const topAuthors = [...authorCounts.entries()]
+        .map(([label, count]) => ({ label, count }))
+        .sort((a, b) => b.count - a.count || a.label.localeCompare(b.label, "id"))
+        .slice(0, 5);
+
+      const authorCard = document.createElement("article");
+      authorCard.className = "stat-card";
+      const authorHeading = document.createElement("h3");
+      authorHeading.textContent = "Penulis paling sering muncul";
+      authorCard.append(authorHeading, makeRankedList(topAuthors, "Belum ada data penulis."));
+
+      const quoteCounts = new Map();
+      quotes.forEach(quote => {
+        quoteCounts.set(quote.storyId, (quoteCounts.get(quote.storyId) || 0) + 1);
+      });
+
+      const topQuotedStories = [...quoteCounts.entries()]
+        .map(([storyId, count]) => ({
+          label: getStoryById(storyId)?.title || "Cerita tidak ditemukan",
+          count
+        }))
+        .sort((a, b) => b.count - a.count || a.label.localeCompare(b.label, "id"))
+        .slice(0, 5);
+
+      const quoteCard = document.createElement("article");
+      quoteCard.className = "stat-card";
+      const quoteHeading = document.createElement("h3");
+      quoteHeading.textContent = "Kutipan terbanyak dari cerita";
+      quoteCard.append(
+        quoteHeading,
+        makeRankedList(topQuotedStories, "Belum ada kutipan tersimpan.")
+      );
+
+      container.append(totalCard, authorCard, quoteCard);
     }
 
     function downloadBackup() {
@@ -886,12 +1582,14 @@
         version: BACKUP_VERSION,
         exportedAt: new Date().toISOString(),
         quotes,
+        customStories,
         progress: {
           read: Array.isArray(state.read) ? state.read : [],
           round: state.round,
           today: state.today,
           todayIds: Array.isArray(state.todayIds) ? state.todayIds : []
-        }
+        },
+        dailyWord
       };
 
       try {
@@ -913,28 +1611,80 @@
       }
     }
 
-    function isValidBackup(data) {
-      if (!data || typeof data !== "object" || data.app !== "Ruang Baca") return false;
-      if (!Array.isArray(data.quotes)) return false;
+    function validateBackup(data) {
+      if (!data || typeof data !== "object" || data.app !== "Ruang Baca") {
+        return { valid: false, message: "File bukan backup Ruang Baca yang valid." };
+      }
+
+      if (!Array.isArray(data.quotes)) {
+        return { valid: false, message: "Data kutipan dalam backup tidak valid." };
+      }
 
       const progress = data.progress;
-      if (!progress || typeof progress !== "object") return false;
-      if (!Array.isArray(progress.read) || !Array.isArray(progress.todayIds)) return false;
-      if (!Number.isFinite(Number(progress.round))) return false;
-      if (typeof progress.today !== "string") return false;
+      if (
+        !progress ||
+        typeof progress !== "object" ||
+        !Array.isArray(progress.read) ||
+        !Array.isArray(progress.todayIds) ||
+        !Number.isFinite(Number(progress.round)) ||
+        typeof progress.today !== "string"
+      ) {
+        return { valid: false, message: "Data progres dalam backup tidak valid." };
+      }
 
-      const validId = id => Number.isInteger(id) && id >= 0 && id < STORIES.length;
-      if (!progress.read.every(validId) || !progress.todayIds.every(validId)) return false;
-      if (progress.todayIds.length > DAILY_COUNT) return false;
+      const backupCustomStories = data.customStories === undefined ? [] : data.customStories;
+      if (!Array.isArray(backupCustomStories)) {
+        return { valid: false, message: "Data cerita tambahan dalam backup tidak valid." };
+      }
 
-      return data.quotes.every(quote =>
-        quote &&
-        typeof quote.text === "string" &&
-        quote.text.trim().length > 0 &&
-        Number.isInteger(quote.storyId) &&
-        quote.storyId >= 0 &&
-        quote.storyId < STORIES.length
-      );
+      const normalizedCustomStories = [];
+      for (const story of backupCustomStories) {
+        if (
+          !story ||
+          typeof story.title !== "string" ||
+          !story.title.trim() ||
+          typeof story.url !== "string" ||
+          !/^https?:\/\//i.test(story.url.trim())
+        ) {
+          return { valid: false, message: "Ada cerita tambahan yang tidak valid dalam backup." };
+        }
+
+        normalizedCustomStories.push({
+          id: typeof story.id === "string" ? story.id : createId(),
+          title: story.title.trim(),
+          url: story.url.trim()
+        });
+      }
+
+      const backupStories = STORIES.concat(normalizedCustomStories);
+      const validId = id => Number.isInteger(id) && id >= 0 && id < backupStories.length;
+
+      if (!progress.read.every(validId) || !progress.todayIds.every(validId)) {
+        return { valid: false, message: "Ada ID cerita progres yang tidak cocok dengan daftar backup." };
+      }
+
+      if (progress.todayIds.length > DAILY_COUNT) {
+        return { valid: false, message: "Daftar cerita hari ini dalam backup tidak valid." };
+      }
+
+      for (const quote of data.quotes) {
+        if (
+          !quote ||
+          typeof quote.text !== "string" ||
+          !quote.text.trim() ||
+          !Number.isInteger(quote.storyId) ||
+          quote.storyId < 0 ||
+          quote.storyId >= backupStories.length
+        ) {
+          return { valid: false, message: "Ada kutipan yang tidak valid dalam backup." };
+        }
+      }
+
+      return {
+        valid: true,
+        customStories: normalizedCustomStories,
+        backupStories
+      };
     }
 
     async function restoreBackup(file) {
@@ -942,15 +1692,15 @@
       if (!file) return;
 
       try {
-        const text = await file.text();
-        const data = JSON.parse(text);
+        const data = JSON.parse(await file.text());
+        const validation = validateBackup(data);
 
-        if (!isValidBackup(data)) {
-          notice.textContent = "File backup tidak valid atau formatnya tidak cocok. Data tidak diubah.";
+        if (!validation.valid) {
+          notice.textContent = `${validation.message} Data tidak diubah.`;
           return;
         }
 
-        if (!confirm("Restore akan menimpa kutipan dan progres membaca yang tersimpan saat ini. Lanjutkan?")) {
+        if (!confirm("Restore akan menimpa kutipan, cerita tambahan, dan progres membaca saat ini. Lanjutkan?")) {
           notice.textContent = "Restore dibatalkan. Data tidak diubah.";
           return;
         }
@@ -969,35 +1719,80 @@
           createdAt: typeof quote.createdAt === "string" ? quote.createdAt : new Date().toISOString()
         }));
 
+        const restoredCustomStories = validation.customStories;
+
+        let restoredDailyWord = data.dailyWord;
+        if (
+          !restoredDailyWord ||
+          typeof restoredDailyWord.date !== "string" ||
+          typeof restoredDailyWord.quoteId !== "string"
+        ) {
+          restoredDailyWord = { date: "", quoteId: "" };
+        }
+
+        if (!restoredQuotes.some(quote => quote.id === restoredDailyWord.quoteId)) {
+          restoredDailyWord = { date: "", quoteId: "" };
+        }
+
         const oldState = state;
         const oldQuotes = quotes;
+        const oldCustomStories = customStories;
+        const oldDailyWord = dailyWord;
+
         state = restoredState;
         quotes = restoredQuotes;
+        customStories = restoredCustomStories;
+        dailyWord = restoredDailyWord;
 
-        const progressSaved = saveState();
-        const quotesSaved = saveQuotes();
+        const saved =
+          saveState() &&
+          saveQuotes() &&
+          saveCustomStories() &&
+          saveDailyWord();
 
-        if (!progressSaved || !quotesSaved) {
+        if (!saved) {
           state = oldState;
           quotes = oldQuotes;
+          customStories = oldCustomStories;
+          dailyWord = oldDailyWord;
+
           saveState();
           saveQuotes();
-          notice.textContent = "Restore gagal karena data tidak dapat disimpan di browser. Data sebelumnya dipulihkan jika memungkinkan.";
+          saveCustomStories();
+          saveDailyWord();
+
+          notice.textContent = "Restore gagal karena browser tidak dapat menyimpan data. Data sebelumnya dipulihkan jika memungkinkan.";
           return;
         }
 
         render();
         renderSaved();
-        notice.textContent = "Restore berhasil. Kutipan dan progres membaca sudah dipulihkan.";
+        renderCustomStories();
+        renderStatistics();
+        notice.textContent = "Restore berhasil. Kutipan, cerita tambahan, dan progres sudah dipulihkan.";
       } catch (error) {
         console.warn("File restore tidak dapat diproses.", error);
-        notice.textContent = "File tidak dapat dibaca. Pastikan file berformat JSON backup Ruang Baca yang valid.";
+        notice.textContent = "File tidak dapat dibaca. Pastikan file merupakan backup JSON Ruang Baca yang valid.";
       }
     }
 
     document.getElementById("today-tab").addEventListener("click", () => setActiveTab("today"));
     document.getElementById("saved-tab").addEventListener("click", () => setActiveTab("saved"));
+    document.getElementById("add-tab").addEventListener("click", () => setActiveTab("add"));
+    document.getElementById("stats-tab").addEventListener("click", () => setActiveTab("stats"));
+
     document.getElementById("saved-search").addEventListener("input", renderSaved);
+    document.getElementById("add-story-form").addEventListener("submit", addStory);
+
+    document.getElementById("shuffle-daily-word").addEventListener("click", () => {
+      if (quotes.length === 0) {
+        renderDailyWord();
+        return;
+      }
+      selectRandomQuote(dailyWord.quoteId);
+      renderDailyWord();
+    });
+
     document.getElementById("backup-button").addEventListener("click", downloadBackup);
 
     document.getElementById("restore-button").addEventListener("click", () => {
@@ -1012,6 +1807,8 @@
 
     render();
     renderSaved();
+    renderCustomStories();
+    renderStatistics();
   </script>
 </body>
 </html>
