@@ -216,7 +216,8 @@
     }
 
     .view-panel[hidden],
-    .quote-editor[hidden] {
+    .quote-editor[hidden],
+    .today-header[hidden] {
       display: none;
     }
 
@@ -610,13 +611,6 @@
       font: 0.76rem system-ui, sans-serif;
     }
 
-    footer {
-      margin-top: 28px;
-      color: var(--muted);
-      font: 0.78rem/1.6 system-ui, sans-serif;
-      text-align: center;
-    }
-
     @media (max-width: 600px) {
       main { padding-top: 38px; }
       .tabs { gap: 6px; }
@@ -651,7 +645,7 @@
     }
   </style>
 </head>
-<body>
+<body class="welcome-active">
   <section id="welcome-screen" class="welcome-screen" aria-label="Welcome">
     <div class="welcome-content">
       <h1>Hi! Welcome</h1>
@@ -663,20 +657,23 @@
     <main>
       <header>
         <div class="eyebrow">Ruang baca pribadi</div>
-        <h1>Cerita hari ini</h1>
-        <p class="intro">Lima cerita pilihan untuk dibaca pelan-pelan. Tandai setelah selesai agar progresmu tersimpan.</p>
-      </header>
 
-      <section class="stats" aria-label="Progres membaca">
-        <div class="stat">
-          <span class="stat-label">Progres hari ini</span>
-          <strong id="today-progress">0 dari 0</strong>
+        <div id="today-header" class="today-header">
+          <h1>Cerita hari ini</h1>
+          <p class="intro">Lima cerita pilihan untuk dibaca pelan-pelan. Tandai setelah selesai agar progresmu tersimpan.</p>
+
+          <section class="stats" aria-label="Progres membaca">
+            <div class="stat">
+              <span class="stat-label">Progres hari ini</span>
+              <strong id="today-progress">0 dari 0</strong>
+            </div>
+            <div class="stat">
+              <span class="stat-label">Progres putaran ini</span>
+              <strong id="total-progress">0 dari 0</strong>
+            </div>
+          </section>
         </div>
-        <div class="stat">
-          <span class="stat-label">Progres putaran ini</span>
-          <strong id="total-progress">0 dari 0</strong>
-        </div>
-      </section>
+      </header>
 
       <nav class="tabs" aria-label="Navigasi halaman">
         <button class="tab-button" id="today-tab" type="button" aria-selected="true">Cerita Hari Ini</button>
@@ -773,8 +770,6 @@
 
         <p id="backup-notice" class="notice" aria-live="polite"></p>
       </section>
-
-      <footer>Progres, kutipan, dan cerita tambahan tersimpan di browser ini. Gunakan Backup untuk menyimpan salinan data.</footer>
     </main>
   </div>
 
@@ -836,7 +831,6 @@
     const QUOTES_STORAGE_KEY = "ruangBacaQuotesV1";
     const CUSTOM_STORIES_STORAGE_KEY = "ruangBacaCustomStoriesV1";
     const DAILY_WORD_STORAGE_KEY = "ruangBacaDailyWordV1";
-    const WELCOME_SESSION_KEY = "ruangBacaWelcomeSeenV1";
     const DAILY_COUNT = 5;
     const BACKUP_VERSION = 2;
 
@@ -1538,8 +1532,6 @@
         .filter(id => id !== removedGlobalIndex)
         .map(id => id > removedGlobalIndex ? id - 1 : id);
 
-      // Kutipan sengaja tidak dihapus atau diubah; jika cerita asalnya dihapus,
-      // kutipan tetap tersimpan dan ditampilkan dengan judul generik.
       const customSaved = saveCustomStories();
       const progressSaved = saveState();
 
@@ -1624,6 +1616,9 @@
         document.getElementById(panelId).hidden = !active;
       });
 
+      document.getElementById("today-header").hidden = tabName !== "today";
+
+      if (tabName === "today") render();
       if (tabName === "saved") renderSaved();
       if (tabName === "all-stories") renderAllStories();
     }
@@ -1684,7 +1679,6 @@
         return { valid: false, message: "Data progres dalam backup tidak valid." };
       }
 
-      // Backup lama tidak memiliki customStories, jadi dianggap sebagai daftar kosong.
       const backupCustomStories = data.customStories === undefined ? [] : data.customStories;
       if (!Array.isArray(backupCustomStories)) {
         return { valid: false, message: "Data cerita tambahan dalam backup tidak valid." };
@@ -1821,40 +1815,18 @@
       }
     }
 
-    function initializeWelcome() {
-      let showWelcome = true;
+    document.getElementById("start-reading").addEventListener("click", () => {
+      document.body.classList.remove("welcome-active");
+      document.body.classList.add("is-entering");
 
-      try {
-        showWelcome = sessionStorage.getItem(WELCOME_SESSION_KEY) !== "seen";
-      } catch (error) {
-        // Jika sessionStorage tidak tersedia, Welcome muncul setiap kali halaman dibuka.
-        showWelcome = true;
-      }
-
-      if (!showWelcome) {
-        document.body.classList.remove("welcome-active");
-        return;
-      }
-
-      document.body.classList.add("welcome-active");
-
-      document.getElementById("start-reading").addEventListener("click", () => {
-        try {
-          sessionStorage.setItem(WELCOME_SESSION_KEY, "seen");
-        } catch (error) {
-          // Tidak masalah: Welcome dapat muncul lagi jika sessionStorage tidak tersedia.
-        }
-
-        document.body.classList.remove("welcome-active");
-        document.body.classList.add("is-entering");
-
-        const app = document.getElementById("app-content");
-        requestAnimationFrame(() => {
-          app.classList.add("is-visible");
-          document.body.classList.remove("is-entering");
-        });
+      const app = document.getElementById("app-content");
+      requestAnimationFrame(() => {
+        app.classList.add("is-visible");
+        document.body.classList.remove("is-entering");
       });
-    }
+
+      setActiveTab("today");
+    });
 
     document.getElementById("today-tab").addEventListener("click", () => setActiveTab("today"));
     document.getElementById("saved-tab").addEventListener("click", () => setActiveTab("saved"));
@@ -1899,7 +1871,6 @@
     render();
     renderSaved();
     renderAllStories();
-    initializeWelcome();
   </script>
 </body>
 </html>
