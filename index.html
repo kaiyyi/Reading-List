@@ -188,12 +188,177 @@
       text-align: center;
     }
 
+    /* Tambahan fitur kutipan, tab, dan backup/restore */
+    .tabs {
+      display: flex;
+      gap: 8px;
+      margin: 28px 0 22px;
+      border-bottom: 1px solid var(--line);
+    }
+
+    .tab-button,
+    .utility-button,
+    .action-button,
+    .quote-save-button {
+      border: 1px solid var(--line);
+      border-radius: 9px;
+      background: var(--paper);
+      color: var(--ink);
+      cursor: pointer;
+      font: 600 0.86rem system-ui, sans-serif;
+      padding: 9px 13px;
+    }
+
+    .tab-button {
+      border-bottom-left-radius: 0;
+      border-bottom-right-radius: 0;
+      color: var(--muted);
+    }
+
+    .tab-button[aria-selected="true"] {
+      border-color: var(--accent);
+      background: var(--accent);
+      color: white;
+    }
+
+    .saved-toolbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 12px;
+      margin: 0 0 16px;
+    }
+
+    .saved-search {
+      flex: 1 1 220px;
+      min-width: 0;
+      padding: 11px 13px;
+      border: 1px solid var(--line);
+      border-radius: 9px;
+      background: var(--paper);
+      color: var(--ink);
+      font: 0.9rem system-ui, sans-serif;
+    }
+
+    .backup-actions {
+      display: flex;
+      gap: 8px;
+    }
+
+    .utility-button:hover,
+    .action-button:hover,
+    .quote-save-button:hover,
+    .tab-button:not([aria-selected="true"]):hover {
+      background: var(--soft);
+    }
+
+    .quote-save-button {
+      border-color: var(--accent);
+      color: var(--accent);
+    }
+
+    .quote-editor {
+      display: grid;
+      gap: 11px;
+      margin: 16px 0 0 41px;
+      padding: 15px;
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      background: var(--bg);
+    }
+
+    .quote-editor[hidden],
+    .view-panel[hidden] {
+      display: none;
+    }
+
+    .quote-editor textarea {
+      width: 100%;
+      min-height: 120px;
+      resize: vertical;
+      padding: 11px 12px;
+      border: 1px solid var(--line);
+      border-radius: 9px;
+      background: var(--paper);
+      color: var(--ink);
+      font: 1rem/1.55 Georgia, "Times New Roman", serif;
+    }
+
+    .quote-editor select {
+      width: 100%;
+      padding: 10px 12px;
+      border: 1px solid var(--line);
+      border-radius: 9px;
+      background: var(--paper);
+      color: var(--ink);
+      font: 0.9rem system-ui, sans-serif;
+    }
+
+    .editor-actions,
+    .quote-actions {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    .saved-list {
+      display: grid;
+      gap: 12px;
+    }
+
+    .quote-card {
+      padding: 19px 20px;
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      background: var(--paper);
+    }
+
+    .quote-text {
+      margin: 0 0 13px;
+      white-space: pre-wrap;
+      overflow-wrap: anywhere;
+      font-size: 1.08rem;
+    }
+
+    .quote-story-link {
+      display: inline-block;
+      margin-bottom: 14px;
+      color: var(--accent);
+      font: 600 0.9rem system-ui, sans-serif;
+      text-decoration-thickness: 1px;
+      text-underline-offset: 3px;
+    }
+
+    .action-button {
+      padding: 7px 11px;
+    }
+
+    .action-button.delete {
+      color: #8b4a40;
+    }
+
+    .notice {
+      margin: 0 0 14px;
+      color: var(--muted);
+      font: 0.88rem system-ui, sans-serif;
+    }
+
+    .backup-actions input[type="file"] {
+      display: none;
+    }
+
     @media (max-width: 480px) {
       main { padding-top: 38px; }
       .story { padding: 16px; }
       .story-actions { margin-left: 0; }
       .section-heading { align-items: flex-start; flex-direction: column; }
       #today-date { text-align: left; }
+      .quote-editor { margin-left: 0; }
+      .saved-toolbar { align-items: stretch; }
+      .backup-actions { width: 100%; }
+      .backup-actions button { flex: 1; }
     }
   </style>
 </head>
@@ -216,12 +381,41 @@
       </div>
     </section>
 
-    <section aria-labelledby="list-heading">
+    <nav class="tabs" aria-label="Navigasi halaman">
+      <button class="tab-button" id="today-tab" type="button" aria-selected="true">Cerita Hari Ini</button>
+      <button class="tab-button" id="saved-tab" type="button" aria-selected="false">Saved</button>
+    </nav>
+
+    <section id="today-panel" class="view-panel" aria-labelledby="list-heading">
       <div class="section-heading">
         <h2 id="list-heading">Daftar bacaan</h2>
         <span id="today-date"></span>
       </div>
       <div id="story-list" class="story-list"></div>
+    </section>
+
+    <section id="saved-panel" class="view-panel" aria-labelledby="saved-heading" hidden>
+      <div class="section-heading">
+        <h2 id="saved-heading">Saved</h2>
+      </div>
+
+      <div class="saved-toolbar">
+        <input
+          id="saved-search"
+          class="saved-search"
+          type="search"
+          placeholder="Cari kutipan atau judul cerita..."
+          aria-label="Cari kutipan atau judul cerita"
+        >
+        <div class="backup-actions">
+          <button id="backup-button" class="utility-button" type="button">Backup</button>
+          <button id="restore-button" class="utility-button" type="button">Restore</button>
+          <input id="restore-file" type="file" accept=".json,application/json">
+        </div>
+      </div>
+
+      <p id="saved-notice" class="notice" aria-live="polite"></p>
+      <div id="saved-list" class="saved-list"></div>
     </section>
 
     <footer>Progres tersimpan di browser ini. Jika data browser dihapus atau kamu memakai perangkat lain, progres tidak ikut berpindah.</footer>
@@ -284,9 +478,29 @@
     ];
 
     const STORAGE_KEY = "ruangBacaProgressV1";
+    const QUOTES_STORAGE_KEY = "ruangBacaQuotesV1";
     const DAILY_COUNT = 5;
+    const BACKUP_VERSION = 1;
 
-    // Tanggal lokal, supaya pilihan berganti mengikuti hari di perangkatmu.
+    function safeGetItem(key) {
+      try {
+        return localStorage.getItem(key);
+      } catch (error) {
+        console.warn("Data browser tidak dapat dibaca.", error);
+        return null;
+      }
+    }
+
+    function safeSetItem(key, value) {
+      try {
+        localStorage.setItem(key, value);
+        return true;
+      } catch (error) {
+        console.warn("Data browser tidak dapat disimpan.", error);
+        return false;
+      }
+    }
+
     function getLocalDateKey() {
       const now = new Date();
       const year = now.getFullYear();
@@ -297,7 +511,7 @@
 
     function loadState() {
       try {
-        const saved = JSON.parse(localStorage.getItem(STORAGE_KEY));
+        const saved = JSON.parse(safeGetItem(STORAGE_KEY));
         if (saved && typeof saved === "object") return saved;
       } catch (error) {
         console.warn("Data progres tidak dapat dibaca.", error);
@@ -306,7 +520,29 @@
     }
 
     function saveState() {
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+      return safeSetItem(STORAGE_KEY, JSON.stringify(state));
+    }
+
+    function loadQuotes() {
+      try {
+        const saved = JSON.parse(safeGetItem(QUOTES_STORAGE_KEY));
+        if (Array.isArray(saved)) {
+          return saved.filter(item =>
+            item &&
+            typeof item.text === "string" &&
+            Number.isInteger(item.storyId) &&
+            item.storyId >= 0 &&
+            item.storyId < STORIES.length
+          );
+        }
+      } catch (error) {
+        console.warn("Data kutipan tidak dapat dibaca.", error);
+      }
+      return [];
+    }
+
+    function saveQuotes() {
+      return safeSetItem(QUOTES_STORAGE_KEY, JSON.stringify(quotes));
     }
 
     function shuffle(items) {
@@ -319,16 +555,17 @@
     }
 
     let state = loadState();
+    let quotes = loadQuotes();
 
-    // Indeks cerita menjadi ID, sehingga cerita yang sudah dibaca tetap dikenali.
     function prepareToday() {
       const today = getLocalDateKey();
       const validIds = new Set(STORIES.map((_, index) => index));
 
-      state.read = [...new Set(state.read)].filter(id => validIds.has(id));
+      state.read = Array.isArray(state.read)
+        ? [...new Set(state.read)].filter(id => validIds.has(id))
+        : [];
       state.round = Math.max(1, Number(state.round) || 1);
 
-      // Jika semua cerita selesai, mulai putaran baru.
       if (STORIES.length > 0 && state.read.length >= STORIES.length) {
         state.read = [];
         state.round += 1;
@@ -336,7 +573,6 @@
         state.todayIds = [];
       }
 
-      // Pilihan hari ini dibuat sekali; refresh tidak mengacak ulang.
       const savedTodayIds = Array.isArray(state.todayIds)
         ? state.todayIds.filter(id => validIds.has(id))
         : [];
@@ -349,11 +585,25 @@
         state.today = today;
         state.todayIds = shuffle(unread).slice(0, DAILY_COUNT);
       } else {
-        // Cerita yang sudah ditandai dibaca hari ini tetap tampak sebagai selesai.
         state.todayIds = savedTodayIds;
       }
 
       saveState();
+    }
+
+    function makeStorySelect(selectedId) {
+      const select = document.createElement("select");
+      select.setAttribute("aria-label", "Pilih cerita untuk kutipan");
+
+      STORIES.forEach((story, index) => {
+        const option = document.createElement("option");
+        option.value = String(index);
+        option.textContent = story.title;
+        option.selected = index === selectedId;
+        select.appendChild(option);
+      });
+
+      return select;
     }
 
     function render() {
@@ -415,6 +665,14 @@
         link.rel = "noopener noreferrer";
         link.textContent = "Buka cerita ↗";
 
+        const rightActions = document.createElement("div");
+        rightActions.className = "editor-actions";
+
+        const saveQuoteButton = document.createElement("button");
+        saveQuoteButton.className = "quote-save-button";
+        saveQuoteButton.type = "button";
+        saveQuoteButton.textContent = "BHAAAPP";
+
         const label = document.createElement("label");
         label.className = "read-label";
 
@@ -437,13 +695,323 @@
         labelText.textContent = "Sudah dibaca";
 
         label.append(checkbox, labelText);
-        actions.append(link, label);
-        article.append(top, actions);
+        rightActions.append(saveQuoteButton, label);
+        actions.append(link, rightActions);
+
+        const editor = document.createElement("form");
+        editor.className = "quote-editor";
+        editor.hidden = true;
+
+        const quoteInput = document.createElement("textarea");
+        quoteInput.placeholder = "Tempel kalimat atau kutipan yang kamu suka...";
+        quoteInput.setAttribute("aria-label", "Teks kutipan");
+        quoteInput.required = true;
+
+        const storySelect = makeStorySelect(id);
+
+        const editorActions = document.createElement("div");
+        editorActions.className = "editor-actions";
+
+        const saveButton = document.createElement("button");
+        saveButton.className = "quote-save-button";
+        saveButton.type = "submit";
+        saveButton.textContent = "Simpan";
+
+        const cancelButton = document.createElement("button");
+        cancelButton.className = "action-button";
+        cancelButton.type = "button";
+        cancelButton.textContent = "Batal";
+
+        saveQuoteButton.addEventListener("click", () => {
+          editor.hidden = !editor.hidden;
+          if (!editor.hidden) quoteInput.focus();
+        });
+
+        cancelButton.addEventListener("click", () => {
+          editor.reset();
+          storySelect.value = String(id);
+          editor.hidden = true;
+        });
+
+        editor.addEventListener("submit", event => {
+          event.preventDefault();
+          const text = quoteInput.value.trim();
+          if (!text) {
+            quoteInput.focus();
+            return;
+          }
+
+          quotes.unshift({
+            id: createId(),
+            text,
+            storyId: Number(storySelect.value),
+            createdAt: new Date().toISOString()
+          });
+
+          if (!saveQuotes()) {
+            quotes.shift();
+            alert("Kutipan tidak dapat disimpan. Periksa ruang penyimpanan browser.");
+            return;
+          }
+
+          renderSaved();
+          editor.reset();
+          storySelect.value = String(id);
+          editor.hidden = true;
+        });
+
+        editorActions.append(saveButton, cancelButton);
+        editor.append(quoteInput, storySelect, editorActions);
+        article.append(top, actions, editor);
         list.appendChild(article);
       });
     }
 
+    function createId() {
+      if (window.crypto && typeof window.crypto.randomUUID === "function") {
+        return window.crypto.randomUUID();
+      }
+      return `${Date.now()}-${Math.random().toString(16).slice(2)}`;
+    }
+
+    function renderSaved() {
+      const list = document.getElementById("saved-list");
+      const query = document.getElementById("saved-search").value.trim().toLocaleLowerCase("id");
+      list.replaceChildren();
+
+      const filtered = quotes.filter(quote => {
+        const story = STORIES[quote.storyId];
+        const title = story ? story.title : "";
+        return quote.text.toLocaleLowerCase("id").includes(query) ||
+          title.toLocaleLowerCase("id").includes(query);
+      });
+
+      if (filtered.length === 0) {
+        const empty = document.createElement("div");
+        empty.className = "empty";
+        empty.textContent = quotes.length === 0
+          ? "Belum ada kutipan tersimpan."
+          : "Tidak ada kutipan yang cocok dengan pencarian.";
+        list.appendChild(empty);
+        return;
+      }
+
+      filtered.forEach(quote => {
+        const story = STORIES[quote.storyId];
+        const card = document.createElement("article");
+        card.className = "quote-card";
+
+        const text = document.createElement("p");
+        text.className = "quote-text";
+        text.textContent = quote.text;
+
+        const storyLink = document.createElement("a");
+        storyLink.className = "quote-story-link";
+        storyLink.textContent = story ? story.title : "Cerita tidak ditemukan";
+        if (story) {
+          storyLink.href = story.url;
+          storyLink.target = "_blank";
+          storyLink.rel = "noopener noreferrer";
+        } else {
+          storyLink.removeAttribute("href");
+        }
+
+        const actions = document.createElement("div");
+        actions.className = "quote-actions";
+
+        const copyButton = document.createElement("button");
+        copyButton.className = "action-button";
+        copyButton.type = "button";
+        copyButton.textContent = "Copy";
+        copyButton.addEventListener("click", async () => {
+          try {
+            await navigator.clipboard.writeText(quote.text);
+            copyButton.textContent = "Tersalin";
+            setTimeout(() => { copyButton.textContent = "Copy"; }, 1400);
+          } catch (error) {
+            const temporary = document.createElement("textarea");
+            temporary.value = quote.text;
+            temporary.style.position = "fixed";
+            temporary.style.opacity = "0";
+            document.body.appendChild(temporary);
+            temporary.select();
+
+            try {
+              document.execCommand("copy");
+              copyButton.textContent = "Tersalin";
+              setTimeout(() => { copyButton.textContent = "Copy"; }, 1400);
+            } catch (copyError) {
+              alert("Teks tidak dapat disalin otomatis. Silakan salin kutipannya secara manual.");
+            } finally {
+              temporary.remove();
+            }
+          }
+        });
+
+        const deleteButton = document.createElement("button");
+        deleteButton.className = "action-button delete";
+        deleteButton.type = "button";
+        deleteButton.textContent = "Hapus";
+        deleteButton.addEventListener("click", () => {
+          if (!confirm("Hapus kutipan ini?")) return;
+
+          const oldQuotes = quotes;
+          quotes = quotes.filter(item => item.id !== quote.id);
+          if (!saveQuotes()) {
+            quotes = oldQuotes;
+            alert("Kutipan tidak dapat dihapus dari penyimpanan browser.");
+            return;
+          }
+          renderSaved();
+        });
+
+        actions.append(copyButton, deleteButton);
+        card.append(text, storyLink, actions);
+        list.appendChild(card);
+      });
+    }
+
+    function setActiveTab(tab) {
+      const isSaved = tab === "saved";
+      document.getElementById("today-tab").setAttribute("aria-selected", String(!isSaved));
+      document.getElementById("saved-tab").setAttribute("aria-selected", String(isSaved));
+      document.getElementById("today-panel").hidden = isSaved;
+      document.getElementById("saved-panel").hidden = !isSaved;
+      if (isSaved) renderSaved();
+    }
+
+    function downloadBackup() {
+      const backup = {
+        app: "Ruang Baca",
+        version: BACKUP_VERSION,
+        exportedAt: new Date().toISOString(),
+        quotes,
+        progress: {
+          read: Array.isArray(state.read) ? state.read : [],
+          round: state.round,
+          today: state.today,
+          todayIds: Array.isArray(state.todayIds) ? state.todayIds : []
+        }
+      };
+
+      try {
+        const blob = new Blob([JSON.stringify(backup, null, 2)], {
+          type: "application/json"
+        });
+        const url = URL.createObjectURL(blob);
+        const anchor = document.createElement("a");
+        anchor.href = url;
+        anchor.download = `ruang-baca-backup-${getLocalDateKey()}.json`;
+        document.body.appendChild(anchor);
+        anchor.click();
+        anchor.remove();
+        URL.revokeObjectURL(url);
+        document.getElementById("saved-notice").textContent = "Backup berhasil diunduh.";
+      } catch (error) {
+        console.error("Backup gagal dibuat.", error);
+        document.getElementById("saved-notice").textContent = "Backup gagal dibuat.";
+      }
+    }
+
+    function isValidBackup(data) {
+      if (!data || typeof data !== "object" || data.app !== "Ruang Baca") return false;
+      if (!Array.isArray(data.quotes)) return false;
+
+      const progress = data.progress;
+      if (!progress || typeof progress !== "object") return false;
+      if (!Array.isArray(progress.read) || !Array.isArray(progress.todayIds)) return false;
+      if (!Number.isFinite(Number(progress.round))) return false;
+      if (typeof progress.today !== "string") return false;
+
+      const validId = id => Number.isInteger(id) && id >= 0 && id < STORIES.length;
+      if (!progress.read.every(validId) || !progress.todayIds.every(validId)) return false;
+      if (progress.todayIds.length > DAILY_COUNT) return false;
+
+      return data.quotes.every(quote =>
+        quote &&
+        typeof quote.text === "string" &&
+        quote.text.trim().length > 0 &&
+        Number.isInteger(quote.storyId) &&
+        quote.storyId >= 0 &&
+        quote.storyId < STORIES.length
+      );
+    }
+
+    async function restoreBackup(file) {
+      const notice = document.getElementById("saved-notice");
+      if (!file) return;
+
+      try {
+        const text = await file.text();
+        const data = JSON.parse(text);
+
+        if (!isValidBackup(data)) {
+          notice.textContent = "File backup tidak valid atau formatnya tidak cocok. Data tidak diubah.";
+          return;
+        }
+
+        if (!confirm("Restore akan menimpa kutipan dan progres membaca yang tersimpan saat ini. Lanjutkan?")) {
+          notice.textContent = "Restore dibatalkan. Data tidak diubah.";
+          return;
+        }
+
+        const restoredState = {
+          read: [...new Set(data.progress.read)],
+          round: Math.max(1, Number(data.progress.round) || 1),
+          today: data.progress.today,
+          todayIds: [...new Set(data.progress.todayIds)]
+        };
+
+        const restoredQuotes = data.quotes.map(quote => ({
+          id: typeof quote.id === "string" ? quote.id : createId(),
+          text: quote.text,
+          storyId: quote.storyId,
+          createdAt: typeof quote.createdAt === "string" ? quote.createdAt : new Date().toISOString()
+        }));
+
+        const oldState = state;
+        const oldQuotes = quotes;
+        state = restoredState;
+        quotes = restoredQuotes;
+
+        const progressSaved = saveState();
+        const quotesSaved = saveQuotes();
+
+        if (!progressSaved || !quotesSaved) {
+          state = oldState;
+          quotes = oldQuotes;
+          saveState();
+          saveQuotes();
+          notice.textContent = "Restore gagal karena data tidak dapat disimpan di browser. Data sebelumnya dipulihkan jika memungkinkan.";
+          return;
+        }
+
+        render();
+        renderSaved();
+        notice.textContent = "Restore berhasil. Kutipan dan progres membaca sudah dipulihkan.";
+      } catch (error) {
+        console.warn("File restore tidak dapat diproses.", error);
+        notice.textContent = "File tidak dapat dibaca. Pastikan file berformat JSON backup Ruang Baca yang valid.";
+      }
+    }
+
+    document.getElementById("today-tab").addEventListener("click", () => setActiveTab("today"));
+    document.getElementById("saved-tab").addEventListener("click", () => setActiveTab("saved"));
+    document.getElementById("saved-search").addEventListener("input", renderSaved);
+    document.getElementById("backup-button").addEventListener("click", downloadBackup);
+
+    document.getElementById("restore-button").addEventListener("click", () => {
+      document.getElementById("restore-file").click();
+    });
+
+    document.getElementById("restore-file").addEventListener("change", event => {
+      const file = event.target.files && event.target.files[0];
+      if (file) restoreBackup(file);
+      event.target.value = "";
+    });
+
     render();
+    renderSaved();
   </script>
 </body>
 </html>
