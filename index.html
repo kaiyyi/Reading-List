@@ -1,0 +1,449 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#f8f6f1">
+  <title>Ruang Baca — Cerita Hari Ini</title>
+  <style>
+    :root {
+      color-scheme: light;
+      --bg: #f8f6f1;
+      --paper: #fffefa;
+      --ink: #292720;
+      --muted: #777367;
+      --accent: #6d7352;
+      --line: #e9e5da;
+      --soft: #f0eee6;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--ink);
+      font-family: Georgia, "Times New Roman", serif;
+      line-height: 1.6;
+    }
+
+    main {
+      width: min(100% - 32px, 760px);
+      margin: 0 auto;
+      padding: 56px 0 72px;
+    }
+
+    .eyebrow {
+      color: var(--accent);
+      font: 700 0.75rem/1.4 system-ui, sans-serif;
+      letter-spacing: 0.13em;
+      text-transform: uppercase;
+    }
+
+    h1 {
+      margin: 8px 0 8px;
+      font-size: clamp(2.3rem, 7vw, 3.7rem);
+      font-weight: 400;
+      letter-spacing: -0.045em;
+      line-height: 1.1;
+    }
+
+    .intro {
+      max-width: 540px;
+      margin: 0;
+      color: var(--muted);
+      font-size: 1.08rem;
+    }
+
+    .stats {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+      margin: 30px 0 34px;
+    }
+
+    .stat {
+      padding: 16px 18px;
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      background: var(--paper);
+    }
+
+    .stat-label {
+      display: block;
+      color: var(--muted);
+      font: 0.78rem system-ui, sans-serif;
+    }
+
+    .stat strong {
+      display: block;
+      margin-top: 3px;
+      font-size: 1.5rem;
+      font-weight: 400;
+    }
+
+    .section-heading {
+      display: flex;
+      align-items: baseline;
+      justify-content: space-between;
+      gap: 12px;
+      margin-bottom: 14px;
+    }
+
+    h2 {
+      margin: 0;
+      font-size: 1.5rem;
+      font-weight: 400;
+    }
+
+    #today-date {
+      color: var(--muted);
+      font: 0.82rem system-ui, sans-serif;
+      text-align: right;
+    }
+
+    .story-list {
+      display: grid;
+      gap: 12px;
+    }
+
+    .story {
+      padding: 19px 20px;
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      background: var(--paper);
+      transition: opacity 160ms ease, background 160ms ease;
+    }
+
+    .story.is-read {
+      background: var(--soft);
+      opacity: 0.72;
+    }
+
+    .story-top {
+      display: flex;
+      align-items: flex-start;
+      gap: 13px;
+    }
+
+    .number {
+      flex: 0 0 28px;
+      color: var(--accent);
+      font: 0.82rem system-ui, sans-serif;
+      padding-top: 4px;
+    }
+
+    .story h3 {
+      margin: 0;
+      font-size: 1.12rem;
+      font-weight: 400;
+      line-height: 1.45;
+    }
+
+    .story-actions {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      margin: 15px 0 0 41px;
+    }
+
+    .open-link {
+      color: var(--accent);
+      font: 600 0.88rem system-ui, sans-serif;
+      text-decoration-thickness: 1px;
+      text-underline-offset: 3px;
+    }
+
+    .read-label {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      color: var(--muted);
+      cursor: pointer;
+      font: 0.85rem system-ui, sans-serif;
+      user-select: none;
+    }
+
+    .read-label input {
+      width: 18px;
+      height: 18px;
+      margin: 0;
+      accent-color: var(--accent);
+      cursor: pointer;
+    }
+
+    .empty {
+      padding: 28px 22px;
+      border: 1px dashed #c9c5b8;
+      border-radius: 14px;
+      color: var(--muted);
+      text-align: center;
+    }
+
+    footer {
+      margin-top: 28px;
+      color: var(--muted);
+      font: 0.78rem/1.6 system-ui, sans-serif;
+      text-align: center;
+    }
+
+    @media (max-width: 480px) {
+      main { padding-top: 38px; }
+      .story { padding: 16px; }
+      .story-actions { margin-left: 0; }
+      .section-heading { align-items: flex-start; flex-direction: column; }
+      #today-date { text-align: left; }
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <header>
+      <div class="eyebrow">Ruang baca pribadi</div>
+      <h1>Cerita hari ini</h1>
+      <p class="intro">Lima cerita pilihan untuk dibaca pelan-pelan. Tandai setelah selesai agar progresmu tersimpan.</p>
+    </header>
+
+    <section class="stats" aria-label="Progres membaca">
+      <div class="stat">
+        <span class="stat-label">Progres hari ini</span>
+        <strong id="today-progress">0 dari 0</strong>
+      </div>
+      <div class="stat">
+        <span class="stat-label">Progres putaran ini</span>
+        <strong id="total-progress">0 dari 0</strong>
+      </div>
+    </section>
+
+    <section aria-labelledby="list-heading">
+      <div class="section-heading">
+        <h2 id="list-heading">Daftar bacaan</h2>
+        <span id="today-date"></span>
+      </div>
+      <div id="story-list" class="story-list"></div>
+    </section>
+
+    <footer>Progres tersimpan di browser ini. Jika data browser dihapus atau kamu memakai perangkat lain, progres tidak ikut berpindah.</footer>
+  </main>
+
+  <script>
+    // EDIT DAFTAR CERITA DI BAGIAN INI.
+    // Untuk menambah cerita, salin satu baris, lalu ganti judul dan URL-nya.
+    const STORIES = [
+      { title: "Love Letters to the Girls Who Are Too Hard on Themselves", url: "https://substack.com/@leidiinspired/note/p-155844060?utm_source=notes-share-action&r=96stsm" },
+      { title: "Bila tubuhku membiru akankah kau datang, sayang ?", url: "https://substack.com/@senyapkalbu/note/p-206531509?utm_source=notes-share-action&r=96stsm" },
+      { title: "does knowing me more lead into loving me less?", url: "https://substack.com/@lefranhan/note/p-210616038?utm_source=notes-share-action&r=96stsm" },
+      { title: "Boleh tidak aku memintamu mencintaiku dengan cara yang paling berisik? Sebab, diriku sepi sekali, Sayang.", url: "https://substack.com/@rainthalogy/note/p-216572419?utm_source=notes-share-action&r=96stsm" },
+      { title: "Kalau Perempuan Dipanggil Jalang, Lalu Laki-Laki Disebut Apa?", url: "https://substack.com/@serayumelintangbumi/note/p-214322437?utm_source=notes-share-action&r=96stsm" },
+      { title: "I wanted to be loved the way I love", url: "https://substack.com/@soulaced/note/p-206441589?utm_source=notes-share-action&r=96stsm" },
+      { title: "Kita diciptakan untuk hal-hal besar", url: "https://substack.com/@heybii/note/p-213486122?utm_source=notes-share-action&r=96stsm" },
+      { title: "The morning after I killed myself", url: "https://substack.com/@ceciliia/note/p-184772623?utm_source=notes-share-action&r=96stsm" },
+      { title: "to speak or to die?", url: "https://substack.com/@xahraa/note/p-204352546?utm_source=notes-share-action&r=96stsm" },
+      { title: "Aku Ingin Pesan Seporsi Kasih Sayangmu Tanpa Keraguan. Berapa Harganya, Tuan?", url: "https://substack.com/@prisnarafi/note/p-216137902?utm_source=notes-share-action&r=96stsm" },
+      { title: "kumohon mudahkan hidupnya", url: "https://substack.com/@lettersfromjingga/note/p-215496903?utm_source=notes-share-action&r=96stsm" },
+      { title: "I Lost My Spark But I'm Still Here", url: "https://substack.com/@4yudyaa/note/p-209793270?utm_source=notes-share-action&r=96stsm" },
+      { title: "Apakah Intelektualisme hanya Untuk Mereka yang Punya Privilege?", url: "https://substack.com/@miftachansari/note/p-210989547?utm_source=notes-share-action&r=96stsm" },
+      { title: "Mungkin, Selamanya Aku Akan Menjadi Anak yang Pemarah", url: "https://substack.com/@serayumelintangbumi/note/p-212158179?utm_source=notes-share-action&r=96stsm" },
+      { title: "I Have a Delusional Mindset That I am Allah’s Favourite", url: "https://substack.com/@queqila/note/p-190691546?utm_source=notes-share-action&r=96stsm" },
+      { title: "Allah swt Is to You as You See Him", url: "https://substack.com/@wheremyheartwrites/note/p-179832105?utm_source=notes-share-action&r=96stsm" },
+      { title: "Perasaan jatuh cinta sialan. Aku benci ketika melihat diriku mencintai seseorang secara berlebihan.", url: "https://substack.com/@baemerry/note/p-216898688?utm_source=notes-share-action&r=96stsm" },
+      { title: "Aku Tidak Cemburu, Aku Hanya Belum Memiliki Musim untuk Memanggilmu Milikku", url: "https://substack.com/@stafianm/note/p-212996630?utm_source=notes-share-action&r=96stsm" },
+      { title: "Semoga Suatu Hari Semesta Mendukung Kita Untuk Bertemu Lagi, Ya", url: "https://substack.com/@who0isnancy/note/p-217175364?utm_source=notes-share-action&r=96stsm" },
+      { title: "Andai kamu tahu, sejak mengenalmu aku ingin memperbaiki banyak hal dalam diri ini", url: "https://substack.com/@strawberiesdiary/note/p-216534862?utm_source=notes-share-action&r=96stsm" },
+      { title: "Aku juga ingin sekali saja dipahami tanpa harus menjelaskan", url: "https://substack.com/@errornastar/note/p-212299694?utm_source=notes-share-action&r=96stsm" },
+      { title: "Bagaimana Memaafkan Seseorang yang Tidak Pernah Meminta Maaf?", url: "https://substack.com/@dildila/note/p-211491939?utm_source=notes-share-action&r=96stsm" },
+      { title: "Selamat Melupa, Semoga Tidak Berjumpa", url: "https://substack.com/@selasarkalalily/note/p-213120211?utm_source=notes-share-action&r=96stsm" },
+      { title: "Kita Adalah Monster Tanpa Nama", url: "https://substack.com/@iwianggita/note/p-202124769?utm_source=notes-share-action&r=96stsm" },
+      { title: "Tolong Hidup Lebih Lama Ya, Ma", url: "https://substack.com/@underwillows/note/p-203067686?utm_source=notes-share-action&r=96stsm" },
+      { title: "And Please, If It's Not Meant For me, Let Me Stop Yearning For It.", url: "https://substack.com/@feifeiwrites/note/p-197335581?utm_source=notes-share-action&r=96stsm" },
+      { title: "Untukmu, tokoh favorit hidupku...", url: "https://substack.com/@ansaaksaa/note/p-212980966?utm_source=notes-share-action&r=96stsm" },
+      { title: "Jatuh Suka", url: "https://substack.com/@bloomoire/note/p-214392968?utm_source=notes-share-action&r=96stsm" },
+      { title: "She Was Poetry, But He Couldn't Read", url: "https://substack.com/@winterfern/note/p-216384523?utm_source=notes-share-action&r=96stsm" },
+      { title: "Jatuh Cinta Akan Menjadi Perkara yang Sulit Jika Kita Tidak Pernah Dicintai", url: "https://substack.com/@selasarkalalily/note/p-211507699?utm_source=notes-share-action&r=96stsm" },
+      { title: "Aku Berharap Ada Seseorang yang Cukup Mencintaiku Hingga Memintaku Untuk Berada di Surga", url: "https://substack.com/@snctuary/note/p-209641222?utm_source=notes-share-action&r=96stsm" },
+      { title: "God, if I’m meant to be alone, take away my desire to be loved.", url: "https://substack.com/@anadelmarwrites/note/p-186897797?utm_source=notes-share-action&r=96stsm" },
+      { title: "Buang aku lalu lahirlah kembali, Ma.", url: "https://substack.com/@xwordsmith/note/p-215852604?utm_source=notes-share-action&r=96stsm" },
+      { title: "Meromantisasi \"In Another Life\" untuk membuat penyesalan terdengar lebih puitis.", url: "https://substack.com/@achaej/note/p-208987715?utm_source=notes-share-action&r=96stsm" },
+      { title: "Tidak Semua Perhatian Bisa Kau Sebut Cinta", url: "https://substack.com/@notesbytasia/note/p-214313476?utm_source=notes-share-action&r=96stsm" },
+      { title: "Untuk Kamu, Yang Biasa Saja.", url: "https://substack.com/@byu777/note/p-215148182?utm_source=notes-share-action&r=96stsm" },
+      { title: "Jikalau perasaan ini sampai, kutumpahkan segala kerinduan untukmu", url: "https://substack.com/@salsaamelia/note/p-215653050?utm_source=notes-share-action&r=96stsm" },
+      { title: "seribu aksara nampaknya akan langsung runtuh jika kau memanggilku dengan sebutan “sayang”", url: "https://substack.com/@1blueinwords/note/p-210722160?utm_source=notes-share-action&r=96stsm" },
+      { title: "Memandang Dunia dari Kacamata Seorang Ibu", url: "https://substack.com/@ansletters/note/p-212013947?utm_source=notes-share-action&r=96stsm" },
+      { title: "Berdukalah Sedalam-dalamnya, Lalu Tumbuhlah Seluas-luasnya", url: "https://substack.com/@selasarkalalily/note/p-215438838?utm_source=notes-share-action&r=96stsm" },
+      { title: "If a birds falls in love with a fish, where will they live?", url: "https://substack.com/@seizei/note/p-206972357?utm_source=notes-share-action&r=96stsm" },
+      { title: "Mari merayakan semua yang tidak pernah kamu rayakan saat kecil", url: "https://substack.com/@whosorva/note/p-212361736?utm_source=notes-share-action&r=96stsm" },
+      { title: "Friends to Lovers Is the Way to Go in My Opinion", url: "https://substack.com/@ayshehe/note/p-201756346?utm_source=notes-share-action&r=96stsm" },
+      { title: "Biruku ada padamu", url: "https://substack.com/@aosoradiary/note/p-215236248?utm_source=notes-share-action&r=96stsm" },
+      { title: "Kamu Hanya Ada Satu di Dunia, jadi Jangan Hilang", url: "https://substack.com/@bibabercerita/note/p-213254071?utm_source=notes-share-action&r=96stsm" },
+      { title: "Bolehkah Aku Berharap, Kamu Juga Merindukanku?", url: "https://substack.com/@fioresa/note/p-218200656?utm_source=notes-share-action&r=96stsm" },
+      { title: "Jangan meragukan perasaanku, aku bahkan sudah berhenti mencari sejak mengenalmu", url: "https://substack.com/@strawberiesdiary/note/p-217836048?utm_source=notes-share-action&r=96stsm" },
+      { title: "Pulihlah dengan Tenang, Mekarlah dengan Lapang", url: "https://substack.com/@mairias/note/p-211700896?utm_source=notes-share-action&r=96stsm" },
+      { title: "Tuhan, masih layakkah aku bersujud?", url: "https://substack.com/@tiramaa/note/p-216234562?utm_source=notes-share-action&r=96stsm" },
+      { title: "Aku dan Kamu, yang Tidak Jadi Kita", url: "https://substack.com/@petalfaint/note/p-215381250?utm_source=notes-share-action&r=96stsm" }
+    ];
+
+    const STORAGE_KEY = "ruangBacaProgressV1";
+    const DAILY_COUNT = 5;
+
+    // Tanggal lokal, supaya pilihan berganti mengikuti hari di perangkatmu.
+    function getLocalDateKey() {
+      const now = new Date();
+      const year = now.getFullYear();
+      const month = String(now.getMonth() + 1).padStart(2, "0");
+      const day = String(now.getDate()).padStart(2, "0");
+      return `${year}-${month}-${day}`;
+    }
+
+    function loadState() {
+      try {
+        const saved = JSON.parse(localStorage.getItem(STORAGE_KEY));
+        if (saved && typeof saved === "object") return saved;
+      } catch (error) {
+        console.warn("Data progres tidak dapat dibaca.", error);
+      }
+      return { read: [], round: 1, today: "", todayIds: [] };
+    }
+
+    function saveState() {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+    }
+
+    function shuffle(items) {
+      const result = [...items];
+      for (let i = result.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [result[i], result[j]] = [result[j], result[i]];
+      }
+      return result;
+    }
+
+    let state = loadState();
+
+    // Indeks cerita menjadi ID, sehingga cerita yang sudah dibaca tetap dikenali.
+    function prepareToday() {
+      const today = getLocalDateKey();
+      const validIds = new Set(STORIES.map((_, index) => index));
+
+      state.read = [...new Set(state.read)].filter(id => validIds.has(id));
+      state.round = Math.max(1, Number(state.round) || 1);
+
+      // Jika semua cerita selesai, mulai putaran baru.
+      if (STORIES.length > 0 && state.read.length >= STORIES.length) {
+        state.read = [];
+        state.round += 1;
+        state.today = "";
+        state.todayIds = [];
+      }
+
+      // Pilihan hari ini dibuat sekali; refresh tidak mengacak ulang.
+      const savedTodayIds = Array.isArray(state.todayIds)
+        ? state.todayIds.filter(id => validIds.has(id))
+        : [];
+
+      if (state.today !== today || savedTodayIds.length === 0) {
+        const unread = STORIES
+          .map((_, index) => index)
+          .filter(id => !state.read.includes(id));
+
+        state.today = today;
+        state.todayIds = shuffle(unread).slice(0, DAILY_COUNT);
+      } else {
+        // Cerita yang sudah ditandai dibaca hari ini tetap tampak sebagai selesai.
+        state.todayIds = savedTodayIds;
+      }
+
+      saveState();
+    }
+
+    function render() {
+      prepareToday();
+
+      const list = document.getElementById("story-list");
+      const todayIds = state.todayIds;
+      const readSet = new Set(state.read);
+      const readToday = todayIds.filter(id => readSet.has(id)).length;
+
+      document.getElementById("today-progress").textContent =
+        `${readToday} dari ${todayIds.length}`;
+      document.getElementById("total-progress").textContent =
+        `${state.read.length} dari ${STORIES.length} · Putaran ${state.round}`;
+
+      document.getElementById("today-date").textContent =
+        new Intl.DateTimeFormat("id-ID", {
+          weekday: "long",
+          day: "numeric",
+          month: "long",
+          year: "numeric"
+        }).format(new Date());
+
+      list.replaceChildren();
+
+      if (todayIds.length === 0) {
+        const empty = document.createElement("div");
+        empty.className = "empty";
+        empty.textContent = "Belum ada cerita di daftar. Tambahkan cerita di bagian STORIES pada kode.";
+        list.appendChild(empty);
+        return;
+      }
+
+      todayIds.forEach((id, position) => {
+        const story = STORIES[id];
+        const isRead = readSet.has(id);
+        const article = document.createElement("article");
+        article.className = `story${isRead ? " is-read" : ""}`;
+
+        const top = document.createElement("div");
+        top.className = "story-top";
+
+        const number = document.createElement("span");
+        number.className = "number";
+        number.textContent = String(position + 1).padStart(2, "0");
+
+        const title = document.createElement("h3");
+        title.textContent = story.title;
+
+        top.append(number, title);
+
+        const actions = document.createElement("div");
+        actions.className = "story-actions";
+
+        const link = document.createElement("a");
+        link.className = "open-link";
+        link.href = story.url;
+        link.target = "_blank";
+        link.rel = "noopener noreferrer";
+        link.textContent = "Buka cerita ↗";
+
+        const label = document.createElement("label");
+        label.className = "read-label";
+
+        const checkbox = document.createElement("input");
+        checkbox.type = "checkbox";
+        checkbox.checked = isRead;
+        checkbox.setAttribute("aria-label", `Tandai sudah dibaca: ${story.title}`);
+
+        checkbox.addEventListener("change", () => {
+          if (checkbox.checked) {
+            if (!state.read.includes(id)) state.read.push(id);
+          } else {
+            state.read = state.read.filter(readId => readId !== id);
+          }
+          saveState();
+          render();
+        });
+
+        const labelText = document.createElement("span");
+        labelText.textContent = "Sudah dibaca";
+
+        label.append(checkbox, labelText);
+        actions.append(link, label);
+        article.append(top, actions);
+        list.appendChild(article);
+      });
+    }
+
+    render();
+  </script>
+</body>
+</html>
