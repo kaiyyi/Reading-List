@@ -728,6 +728,12 @@
     .read-label {
       display: none;
     }
+      .status-toggle {
+      display: block;
+      margin-top: 10px;
+      padding: 5px 10px;
+      font-size: 0.75rem;
+    }
   </style>
 </head>
 <body class="welcome-active">
@@ -1150,7 +1156,7 @@
         state.todayIds = shuffle(unread).slice(0, DAILY_COUNT);
       } else {
         state.todayIds = state.todayIds
-          .filter(id => id >= 0 && id < allStories.length && !state.read.includes(id))
+           .filter(id => id >= 0 && id < allStories.length)
           .slice(0, DAILY_COUNT);
 
         const targetCount = Math.min(DAILY_COUNT, allStories.length);
@@ -1628,6 +1634,22 @@
         origin.className = "story-origin";
         origin.textContent = item.isCustom ? "Tambahan" : "Cerita awal";
         main.appendChild(origin);
+        
+        const readToggle = document.createElement("button");
+        readToggle.className = "action-button status-toggle";
+        readToggle.type = "button";
+        readToggle.textContent = item.isRead ? "Batal selesai" : "Tandai selesai";
+        readToggle.addEventListener("click", () => {
+          if (item.isRead) {
+            state.read = state.read.filter(readId => readId !== item.id);
+          } else if (!state.read.includes(item.id)) {
+            state.read.push(item.id);
+          }
+          saveState();
+          render();
+          renderAllStories();
+        });
+        main.appendChild(readToggle);
 
         row.appendChild(main);
 
