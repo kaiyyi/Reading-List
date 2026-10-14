@@ -695,6 +695,39 @@
       background: #26323d;
       color: #9fc3e3;
     }  
+      /* ===== ANGKA JADI CEKLIS ===== */
+    .number-button {
+      flex: 0 0 28px;
+      width: 28px;
+      height: 28px;
+      padding: 0;
+      border: 1px solid var(--line);
+      border-radius: 50%;
+      background: transparent;
+      color: var(--accent);
+      cursor: pointer;
+      font: 600 0.74rem system-ui, sans-serif;
+    }
+
+    .number-button:hover {
+      border-color: var(--accent);
+      background: var(--soft);
+    }
+
+    .number-button.is-checked {
+      border-color: var(--accent);
+      background: var(--accent);
+      color: #fff;
+      font-size: 0.95rem;
+    }
+
+    :root[data-theme="dark"] .number-button.is-checked {
+      color: #1b1a17;
+    }
+
+    .read-label {
+      display: none;
+    }
   </style>
 </head>
 <body class="welcome-active">
@@ -1256,9 +1289,15 @@
         const top = document.createElement("div");
         top.className = "story-top";
 
-        const number = document.createElement("span");
-        number.className = "number";
-        number.textContent = String(position + 1).padStart(2, "0");
+        const number = document.createElement("button");
+        number.type = "button";
+        number.className = `number number-button${isRead ? " is-checked" : ""}`;
+        number.textContent = isRead ? "✓" : String(position + 1).padStart(2, "0");
+        number.setAttribute(
+          "aria-label",
+          isRead ? `Batalkan tanda selesai: ${story.title}` : `Tandai sudah dibaca: ${story.title}`
+        );
+        number.addEventListener("click", () => checkbox.click());
 
         const title = document.createElement("h3");
         const titleLink = document.createElement("a");
