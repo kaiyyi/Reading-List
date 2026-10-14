@@ -1144,7 +1144,7 @@
       if (state.today !== today) {
         const unread = allStories
           .map((_, index) => index)
-          .filter(id => !state.read.includes(id));
+            .filter(id => id >= 0 && id < allStories.length)
 
         state.today = today;
         state.todayIds = shuffle(unread).slice(0, DAILY_COUNT);
@@ -1153,7 +1153,7 @@
           .filter(id => id >= 0 && id < allStories.length && !state.read.includes(id))
           .slice(0, DAILY_COUNT);
 
-        const targetCount = Math.min(DAILY_COUNT, allStories.length - state.read.length);
+        const targetCount = Math.min(DAILY_COUNT, allStories.length);
         const needed = Math.max(0, targetCount - state.todayIds.length);
 
         if (needed > 0) {
