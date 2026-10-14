@@ -38,101 +38,78 @@
       opacity: 0.48;
     }
 
-    
-/* ===== BERANDA ===== */
-.welcome-screen {
-  position: fixed;
-  inset: 0;
-  z-index: 10;
-  display: grid;
-  place-items: center;
-  padding: 24px;
-  background: var(--bg);
-  opacity: 1;
-  transition: opacity 420ms ease;
-}
+    .welcome-screen {
+      position: fixed;
+      inset: 0;
+      z-index: 10;
+      display: grid;
+      place-items: center;
+      padding: 24px;
+      background: var(--bg);
+      opacity: 1;
+      transition: opacity 420ms ease;
+    }
 
-.welcome-screen.is-leaving {
-  opacity: 0;
-  pointer-events: none;
-}
+    .welcome-screen.is-leaving {
+      opacity: 0;
+      pointer-events: none;
+    }
 
-.welcome-content {
-  width: min(100%, 760px);
-  text-align: center;
-}
+    .welcome-content {
+      text-align: center;
+    }
 
-.welcome-greeting {
-  margin: 0 0 22px;
-  font: 500 0.9rem/1.5 system-ui, sans-serif;
-  letter-spacing: 0.02em;
-}
+    .welcome-content h1 {
+      margin: 0 0 22px;
+      font-size: clamp(3rem, 12vw, 5.8rem);
+      font-weight: 400;
+      letter-spacing: -0.055em;
+      line-height: 1.05;
+    }
 
-.welcome-content h1 {
-  margin: 0 0 22px;
-  font-size: clamp(2.8rem, 7vw, 5rem);
-  font-weight: 400;
-  letter-spacing: -0.045em;
-  line-height: 1.12;
-}
+    .start-button {
+      padding: 12px 20px;
+      border: 1px solid var(--accent);
+      border-radius: 10px;
+      background: var(--accent);
+      color: white;
+      cursor: pointer;
+      font: 600 0.95rem system-ui, sans-serif;
+      transition: background 160ms ease, opacity 420ms ease;
+    }
 
-.welcome-content h1 em {
-  font-weight: 400;
-}
+    .start-button:hover {
+      background: #59603f;
+    }
 
-.welcome-description {
-  max-width: 420px;
-  margin: 0 auto 24px;
-  color: var(--ink);
-  font: 0.98rem/1.65 system-ui, sans-serif;
-}
+    .app-content {
+      opacity: 1;
+      transition: opacity 420ms ease;
+    }
 
-.start-button {
-  padding: 12px 20px;
-  border: 1px solid var(--accent);
-  border-radius: 9px;
-  background: var(--accent);
-  color: white;
-  cursor: pointer;
-  font: 600 0.9rem system-ui, sans-serif;
-  transition: background 160ms ease;
-}
+    body.welcome-active {
+      overflow: hidden;
+    }
 
-.start-button:hover {
-  background: #59603f;
-}
+    body.welcome-active .app-content {
+      visibility: hidden;
+      opacity: 0;
+      pointer-events: none;
+    }
 
-.app-content {
-  opacity: 1;
-  transition: opacity 420ms ease;
-}
+    body.welcome-active .welcome-screen {
+      display: grid;
+    }
 
-body.welcome-active {
-  overflow: hidden;
-}
+    body:not(.welcome-active) .welcome-screen {
+      display: none;
+    }
 
-body.welcome-active .app-content {
-  visibility: hidden;
-  opacity: 0;
-  pointer-events: none;
-}
+    body.is-entering .app-content {
+      opacity: 0;
+    }
 
-body.welcome-active .welcome-screen {
-  display: grid;
-}
-
-body:not(.welcome-active) .welcome-screen {
-  display: none;
-}
-
-body.is-entering .app-content {
-  opacity: 0;
-}
-
-body.is-entering .app-content.is-visible {
-  opacity: 1;
-}
- {
+    body.is-entering .app-content.is-visible {
       opacity: 1;
     }
 
@@ -804,26 +781,12 @@ body.is-entering .app-content.is-visible {
       });
     })();
   </script>
-
-<section id="welcome-screen" class="welcome-screen" aria-label="Beranda">
-  <div class="welcome-content">
-    <p class="welcome-greeting">Hai, Kaiy ✧</p>
-
-    <h1>
-      A little reading,<br>
-      <em>a little inspiration.</em>
-    </h1>
-
-    <p class="welcome-description">
-      Setiap cerita punya cara sendiri untuk membuat kita melihat dunia
-      dari sudut yang berbeda.
-    </p>
-
-    <button id="start-reading" class="start-button" type="button">
-      Mulai Membaca →
-    </button>
-  </div>
-</section>
+  <section id="welcome-screen" class="welcome-screen" aria-label="Welcome">
+    <div class="welcome-content">
+      <h1>Hi! Welcome</h1>
+      <button id="start-reading" class="start-button" type="button">Start Reading</button>
+    </div>
+  </section>
 
   <div id="app-content" class="app-content">
     <main>
