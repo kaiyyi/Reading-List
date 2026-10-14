@@ -1649,7 +1649,7 @@
           render();
           renderAllStories();
         });
-        if (item.isRead) main.appendChild(readToggle);
+        if (item.isRead && currentStoryFilter === "read") main.appendChild(readToggle);
 
         row.appendChild(main);
 
