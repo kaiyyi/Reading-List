@@ -1638,7 +1638,7 @@
         const readToggle = document.createElement("button");
         readToggle.className = "action-button status-toggle";
         readToggle.type = "button";
-        readToggle.textContent = item.isRead ? "Batal selesai" : "Tandai selesai";
+        readToggle.textContent = "Undone";
         readToggle.addEventListener("click", () => {
           if (item.isRead) {
             state.read = state.read.filter(readId => readId !== item.id);
