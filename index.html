@@ -874,13 +874,6 @@
       vertical-align: 2px;
     }
  
-    .story-origin {
-      display: block;
-      margin-top: 5px;
-      color: var(--muted);
-      font: 0.76rem var(--font-sans);
-    }
- 
     .number-button {
       flex: 0 0 28px;
       width: 28px;
@@ -908,13 +901,6 @@
  
     .read-label {
       display: none;
-    }
- 
-    .status-toggle {
-      display: block;
-      margin-top: 10px;
-      padding: 5px 10px;
-      font-size: 0.75rem;
     }
  
     :root[data-theme="dark"] {
@@ -968,7 +954,6 @@
       #today-date { text-align: left; }
       .saved-toolbar { align-items: stretch; }
       .daily-word-top { align-items: flex-start; }
-      .all-story-row { align-items: flex-start; }
     }
  
     @media (prefers-reduced-motion: reduce) {
@@ -1125,6 +1110,13 @@
           <h2 id="all-stories-heading">Semua Cerita</h2>
         </div>
 
+        <label class="story-search">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true">
+            <circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/>
+          </svg>
+          <input id="all-stories-search" type="search" placeholder="Cari judul cerita..." aria-label="Cari judul cerita" autocomplete="off">
+        </label>
+
         <div class="filter-buttons" role="group" aria-label="Filter cerita">
           <button class="filter-button" type="button" data-filter="all" aria-pressed="true">Semua</button>
           <button class="filter-button" type="button" data-filter="read" aria-pressed="false">Sudah dibaca</button>
@@ -1134,6 +1126,7 @@
         </div>
 
         <div id="all-story-list" class="all-story-list"></div>
+        <nav id="all-story-pagination" class="pagination" aria-label="Halaman daftar cerita"></nav>
       </section>
 
       <section id="add-panel" class="view-panel" aria-labelledby="add-heading" hidden>
@@ -1233,6 +1226,8 @@
     const QUOTES_STORAGE_KEY = "ruangBacaQuotesV1";
     const CUSTOM_STORIES_STORAGE_KEY = "ruangBacaCustomStoriesV1";
     const DAILY_WORD_STORAGE_KEY = "ruangBacaDailyWordV1";
+    const STORY_DATES_STORAGE_KEY = "ruangBacaStoryDatesV1";
+    const ALL_STORIES_PER_PAGE = 20;
     const DAILY_COUNT = 5;
     const BACKUP_VERSION = 2;
 
@@ -1364,11 +1359,37 @@
       return safeSetItem(DAILY_WORD_STORAGE_KEY, JSON.stringify(dailyWord));
     }
 
+    function cleanStoryDates(raw) {
+      const result = {};
+      if (!raw || typeof raw !== "object" || Array.isArray(raw)) return result;
+      Object.keys(raw).forEach(id => {
+        const value = raw[id];
+        if (typeof value === "string" && !Number.isNaN(Date.parse(value))) result[id] = value;
+      });
+      return result;
+    }
+
+    function loadStoryDates() {
+      try {
+        const raw = safeGetItem(STORY_DATES_STORAGE_KEY);
+        return cleanStoryDates(raw ? JSON.parse(raw) : null);
+      } catch (error) {
+        console.warn("Data tanggal cerita tidak dapat dibaca.", error);
+        return {};
+      }
+    }
+
+    function saveStoryDates() {
+      return safeSetItem(STORY_DATES_STORAGE_KEY, JSON.stringify(storyDates));
+    }
+
     let state = loadState();
     let quotes = loadQuotes();
     let customStories = loadCustomStories();
     let dailyWord = loadDailyWord();
     let currentStoryFilter = "all";
+    let storyDates = loadStoryDates();
+    let currentStoryPage = 1;
 
     function getAllStories() {
       return STORIES.concat(customStories);
@@ -1841,12 +1862,21 @@
       });
     }
 
+    const storyDateFormat = new Intl.DateTimeFormat("id-ID", {
+      day: "numeric",
+      month: "short",
+      year: "numeric"
+    });
+
     function renderAllStories() {
       const list = document.getElementById("all-story-list");
+      const pagination = document.getElementById("all-story-pagination");
       list.replaceChildren();
+      pagination.replaceChildren();
 
       const allStories = getAllStories();
       const readSet = new Set(state.read);
+      const query = document.getElementById("all-stories-search").value.trim().toLocaleLowerCase("id");
 
       const filtered = allStories
         .map((story, id) => ({
@@ -1861,22 +1891,30 @@
           if (currentStoryFilter === "original") return !item.isCustom;
           if (currentStoryFilter === "custom") return item.isCustom;
           return true;
-        });
+        })
+        .filter(item => !query || item.story.title.toLocaleLowerCase("id").includes(query));
 
       if (filtered.length === 0) {
         const empty = document.createElement("div");
         empty.className = "empty";
-        empty.textContent = "Tidak ada cerita yang cocok dengan filter ini.";
+        empty.textContent = query
+          ? "Tidak ada judul yang cocok dengan pencarian."
+          : "Tidak ada cerita yang cocok dengan filter ini.";
         list.appendChild(empty);
         return;
       }
 
-      filtered.forEach(item => {
+      const totalPages = Math.ceil(filtered.length / ALL_STORIES_PER_PAGE);
+      currentStoryPage = Math.min(Math.max(1, currentStoryPage), totalPages);
+      const start = (currentStoryPage - 1) * ALL_STORIES_PER_PAGE;
+
+      filtered.slice(start, start + ALL_STORIES_PER_PAGE).forEach((item, index) => {
         const card = document.createElement("article");
         card.className = "all-story-card";
 
-        const row = document.createElement("div");
-        row.className = "all-story-row";
+        const number = document.createElement("span");
+        number.className = "all-story-number";
+        number.textContent = String(start + index + 1).padStart(2, "0");
 
         const main = document.createElement("div");
         main.className = "all-story-main";
@@ -1887,7 +1925,6 @@
         link.target = "_blank";
         link.rel = "noopener";
         link.textContent = item.story.title;
-
         main.appendChild(link);
 
         if (item.isRead) {
@@ -1897,28 +1934,35 @@
           main.appendChild(status);
         }
 
-        const origin = document.createElement("span");
-        origin.className = "story-origin";
-        origin.textContent = item.isCustom ? "Tambahan" : "Cerita awal";
-        main.appendChild(origin);
-        
-        const readToggle = document.createElement("button");
-        readToggle.className = "action-button status-toggle";
-        readToggle.type = "button";
-        readToggle.textContent = "Undone";
-        readToggle.addEventListener("click", () => {
-          if (item.isRead) {
-            state.read = state.read.filter(readId => readId !== item.id);
-          } else if (!state.read.includes(item.id)) {
-            state.read.push(item.id);
-          }
-          saveState();
-          render();
-          renderAllStories();
-        });
-        if (item.isRead && currentStoryFilter === "read") main.appendChild(readToggle);
+        const side = document.createElement("div");
+        side.className = "all-story-side";
 
-        row.appendChild(main);
+        const addedAt = item.isCustom ? storyDates[item.story.id] : "";
+        if (addedAt) {
+          const date = document.createElement("time");
+          date.className = "all-story-date";
+          date.dateTime = addedAt;
+          date.textContent = storyDateFormat.format(new Date(addedAt));
+          side.appendChild(date);
+        }
+
+        const actions = document.createElement("div");
+        actions.className = "all-story-actions";
+
+        if (item.isRead) {
+          const undoButton = document.createElement("button");
+          undoButton.className = "action-button";
+          undoButton.type = "button";
+          undoButton.textContent = "Undone";
+          undoButton.setAttribute("aria-label", `Batalkan tanda selesai: ${item.story.title}`);
+          undoButton.addEventListener("click", () => {
+            state.read = state.read.filter(readId => readId !== item.id);
+            saveState();
+            render();
+            renderAllStories();
+          });
+          actions.appendChild(undoButton);
+        }
 
         if (item.isCustom) {
           const deleteButton = document.createElement("button");
@@ -1927,12 +1971,74 @@
           deleteButton.textContent = "Hapus";
           deleteButton.setAttribute("aria-label", `Hapus cerita: ${item.story.title}`);
           deleteButton.addEventListener("click", () => deleteCustomStory(item.story.id));
-          row.appendChild(deleteButton);
+          actions.appendChild(deleteButton);
         }
 
-        card.appendChild(row);
+        if (actions.childElementCount > 0) {
+          card.classList.add("has-actions");
+          side.appendChild(actions);
+        }
+
+        card.append(number, main, side);
         list.appendChild(card);
       });
+
+      renderStoryPagination(pagination, totalPages);
+    }
+
+    function getPageItems(current, total) {
+      if (total <= 7) return Array.from({ length: total }, (_, i) => i + 1);
+      if (current <= 4) return [1, 2, 3, 4, 5, "…", total];
+      if (current >= total - 3) return [1, "…", total - 4, total - 3, total - 2, total - 1, total];
+      return [1, "…", current - 1, current, current + 1, "…", total];
+    }
+
+    function renderStoryPagination(container, totalPages) {
+      if (totalPages <= 1) return;
+
+      function goTo(page) {
+        currentStoryPage = page;
+        renderAllStories();
+        window.scrollTo(0, 0);
+      }
+
+      function arrowButton(label, path, page, disabled) {
+        const button = document.createElement("button");
+        button.className = "page-button";
+        button.type = "button";
+        button.disabled = disabled;
+        button.setAttribute("aria-label", label);
+        button.innerHTML = `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="${path}"/></svg>`;
+        button.addEventListener("click", () => goTo(page));
+        return button;
+      }
+
+      container.appendChild(
+        arrowButton("Halaman sebelumnya", "M15 6l-6 6 6 6", currentStoryPage - 1, currentStoryPage === 1)
+      );
+
+      getPageItems(currentStoryPage, totalPages).forEach(page => {
+        if (page === "…") {
+          const gap = document.createElement("span");
+          gap.className = "page-gap";
+          gap.textContent = "…";
+          container.appendChild(gap);
+          return;
+        }
+
+        const button = document.createElement("button");
+        button.className = "page-button";
+        button.type = "button";
+        button.textContent = String(page);
+        button.setAttribute("aria-label", `Halaman ${page}`);
+        if (page === currentStoryPage) button.setAttribute("aria-current", "page");
+        button.addEventListener("click", () => goTo(page));
+        container.appendChild(button);
+      });
+
+      container.appendChild(
+        arrowButton("Halaman berikutnya", "M9 6l6 6-6 6", currentStoryPage + 1, currentStoryPage === totalPages)
+      );
     }
 
     function deleteCustomStory(storyId) {
@@ -1967,6 +2073,9 @@
         alert("Perubahan tidak dapat disimpan. Data sebelumnya dipulihkan jika memungkinkan.");
         return;
       }
+
+      delete storyDates[storyId];
+      saveStoryDates();
 
       prepareToday();
       render();
@@ -2011,6 +2120,9 @@
         showAddMessage("Cerita tidak dapat disimpan. Periksa ruang penyimpanan browser.", true);
         return;
       }
+
+      storyDates[newStory.id] = new Date().toISOString();
+      saveStoryDates();
 
       showAddMessage("Cerita berhasil ditambahkan.");
       document.getElementById("add-story-form").reset();
@@ -2058,6 +2170,7 @@
         exportedAt: new Date().toISOString(),
         quotes,
         customStories,
+        storyDates,
         progress: {
           read: Array.isArray(state.read) ? state.read : [],
           round: state.round,
@@ -2203,31 +2316,42 @@
           restoredDailyWord = { date: "", quoteId: "" };
         }
 
+        const dateSource = data.storyDates !== undefined ? cleanStoryDates(data.storyDates) : storyDates;
+        const restoredStoryDates = {};
+        validation.customStories.forEach(story => {
+          if (dateSource[story.id]) restoredStoryDates[story.id] = dateSource[story.id];
+        });
+
         const oldState = state;
         const oldQuotes = quotes;
         const oldCustomStories = customStories;
         const oldDailyWord = dailyWord;
+        const oldStoryDates = storyDates;
 
         state = restoredState;
         quotes = restoredQuotes;
         customStories = validation.customStories;
         dailyWord = restoredDailyWord;
+        storyDates = restoredStoryDates;
 
         const progressSaved = saveState();
         const quotesSaved = saveQuotes();
         const customStoriesSaved = saveCustomStories();
         const dailyWordSaved = saveDailyWord();
+        const storyDatesSaved = saveStoryDates();
 
-        if (!progressSaved || !quotesSaved || !customStoriesSaved || !dailyWordSaved) {
+        if (!progressSaved || !quotesSaved || !customStoriesSaved || !dailyWordSaved || !storyDatesSaved) {
           state = oldState;
           quotes = oldQuotes;
           customStories = oldCustomStories;
           dailyWord = oldDailyWord;
+          storyDates = oldStoryDates;
 
           saveState();
           saveQuotes();
           saveCustomStories();
           saveDailyWord();
+          saveStoryDates();
 
           notice.textContent = "Restore gagal karena browser tidak dapat menyimpan data. Data sebelumnya dipulihkan jika memungkinkan.";
           return;
@@ -2283,11 +2407,16 @@
     document.getElementById("backup-tab").addEventListener("click", () => setActiveTab("backup"));
 
     document.getElementById("saved-search").addEventListener("input", renderSaved);
+    document.getElementById("all-stories-search").addEventListener("input", () => {
+      currentStoryPage = 1;
+      renderAllStories();
+    });
     document.getElementById("add-story-form").addEventListener("submit", addStory);
 
     document.querySelectorAll(".filter-button").forEach(button => {
       button.addEventListener("click", () => {
         currentStoryFilter = button.dataset.filter;
+        currentStoryPage = 1;
         document.querySelectorAll(".filter-button").forEach(item => {
           item.setAttribute("aria-pressed", String(item === button));
         });
