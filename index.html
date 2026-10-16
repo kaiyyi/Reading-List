@@ -1927,13 +1927,6 @@
         link.textContent = item.story.title;
         main.appendChild(link);
 
-        if (item.isRead) {
-          const status = document.createElement("span");
-          status.className = "story-status";
-          status.textContent = "Selesai";
-          main.appendChild(status);
-        }
-
         const side = document.createElement("div");
         side.className = "all-story-side";
 
