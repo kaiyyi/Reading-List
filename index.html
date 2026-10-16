@@ -574,8 +574,7 @@
       font: 0.9rem var(--font-sans);
     }
  
-    .quote-card,
-    .all-story-card {
+    .quote-card {
       padding: 18px 20px;
       border: 1px solid var(--line);
       border-radius: 14px;
@@ -694,15 +693,156 @@
       color: var(--on-accent);
     }
  
-    .all-story-row {
+    .story-search {
       display: flex;
-      align-items: flex-start;
-      justify-content: space-between;
-      gap: 14px;
+      align-items: center;
+      gap: 10px;
+      margin: 0 0 16px;
+      padding: 0 14px;
+      border: 1px solid var(--line);
+      border-radius: 10px;
+      background: var(--paper);
+      color: var(--muted);
+      transition: border-color 160ms ease;
     }
- 
+
+    .story-search:focus-within {
+      border-color: var(--accent);
+    }
+
+    .story-search input {
+      flex: 1;
+      min-width: 0;
+      padding: 12px 0;
+      border: 0;
+      outline: none;
+      background: none;
+      color: var(--ink);
+      font: 0.95rem var(--font-sans);
+    }
+
+    .all-story-list {
+      gap: 0;
+      border-top: 1px solid var(--line);
+    }
+
+    .all-story-card {
+      display: grid;
+      grid-template-columns: 48px minmax(0, 1fr) auto;
+      align-items: center;
+      gap: 20px;
+      padding: 11px 8px 11px 0;
+      border-bottom: 1px solid var(--line);
+    }
+
+    .all-story-number {
+      display: grid;
+      place-items: center;
+      width: 48px;
+      height: 30px;
+      border-radius: 999px;
+      background: var(--soft);
+      color: var(--muted);
+      font: 500 0.82rem var(--font-sans);
+      font-variant-numeric: tabular-nums;
+    }
+
     .all-story-main {
       min-width: 0;
+    }
+
+    .all-story-side {
+      display: flex;
+      align-items: center;
+      justify-content: flex-end;
+      gap: 12px;
+    }
+
+    .all-story-date {
+      color: var(--muted);
+      font: 0.85rem var(--font-sans);
+      white-space: nowrap;
+      transition: opacity 150ms ease;
+    }
+
+    .all-story-actions {
+      display: flex;
+      gap: 6px;
+      transition: opacity 150ms ease;
+    }
+
+    .all-story-actions .action-button {
+      padding: 5px 10px;
+      font-size: 0.78rem;
+    }
+
+    @media (hover: hover) {
+      .all-story-side {
+        display: grid;
+      }
+
+      .all-story-side > * {
+        grid-area: 1 / 1;
+        justify-self: end;
+      }
+
+      .all-story-actions {
+        opacity: 0;
+        pointer-events: none;
+      }
+
+      .all-story-card:hover .all-story-actions,
+      .all-story-card:focus-within .all-story-actions {
+        opacity: 1;
+        pointer-events: auto;
+      }
+
+      .all-story-card.has-actions:hover .all-story-date,
+      .all-story-card.has-actions:focus-within .all-story-date {
+        opacity: 0;
+      }
+    }
+
+    .pagination {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      margin-top: 28px;
+    }
+
+    .pagination:empty {
+      display: none;
+    }
+
+    .page-button {
+      display: grid;
+      place-items: center;
+      min-width: 36px;
+      height: 36px;
+      padding: 0 8px;
+      border: 0;
+      border-radius: 8px;
+      background: none;
+      color: var(--ink);
+      cursor: pointer;
+      font: 500 0.9rem var(--font-sans);
+    }
+
+    .page-button:hover:not(:disabled):not([aria-current="page"]) {
+      background: var(--soft);
+    }
+
+    .page-button[aria-current="page"] {
+      background: var(--accent);
+      color: var(--on-accent);
+    }
+
+    .page-gap {
+      min-width: 24px;
+      color: var(--muted);
+      font: 0.9rem var(--font-sans);
+      text-align: center;
     }
  
     .all-story-title {
@@ -741,7 +881,6 @@
       font: 0.76rem var(--font-sans);
     }
  
-    /* ===== ANGKA JADI CEKLIS ===== */
     .number-button {
       flex: 0 0 28px;
       width: 28px;
@@ -778,7 +917,6 @@
       font-size: 0.75rem;
     }
  
-    /* ===== MODE GELAP ===== */
     :root[data-theme="dark"] {
       color-scheme: dark;
       --bg: #1b1a17;
@@ -807,7 +945,6 @@
       color: #9fc3e3;
     }
  
-    /* ===== LAYAR KECIL (sementara, belum didesain khusus) ===== */
     @media (max-width: 760px) {
       .site-header-inner { gap: 12px; }
       .site-logo { font-size: 1.3rem; }
@@ -2108,7 +2245,6 @@
 
     document.getElementById("start-reading").addEventListener("click", () => setActiveTab("today"));
 
-    // ===== MENU "⋯" =====
     const moreButton = document.getElementById("more-button");
     const morePanel = document.getElementById("more-panel");
 
