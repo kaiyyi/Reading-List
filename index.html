@@ -933,7 +933,7 @@
 
         <div id="today-header" class="today-header">
           <h1>Cerita hari ini</h1>
-          <p class="intro">Lima cerita pilihan untuk dibaca pelan-pelan. Tandai setelah selesai agar progresmu tersimpan.</p>
+          <p class="intro">Lima pilihan cerita untukmu hari ini.</p>
 
           <section class="stats" aria-label="Progres membaca">
             <div class="stat">
@@ -941,7 +941,7 @@
               <strong id="today-progress">0 dari 0</strong>
             </div>
             <div class="stat">
-              <span class="stat-label">Progres putaran ini</span>
+              <span class="stat-label">Progres keseluruhan</span>
               <strong id="total-progress">0 dari 0</strong>
             </div>
           </section>
@@ -1391,7 +1391,7 @@
       document.getElementById("today-progress").textContent =
         `${readToday} dari ${todayIds.length}`;
       document.getElementById("total-progress").textContent =
-        `${state.read.length} dari ${allStories.length} · Putaran ${state.round}`;
+        `${state.read.length} dari ${allStories.length}`;
 
       document.getElementById("today-date").textContent =
         new Intl.DateTimeFormat("id-ID", {
