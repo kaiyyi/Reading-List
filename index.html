@@ -846,8 +846,32 @@
     }
   </style>
 </head>
-<body class="welcome-active">
-    <button id="theme-toggle" class="theme-toggle" type="button" aria-label="Ganti tema terang atau gelap">Mode gelap</button>
+<body data-view="home">
+  <header class="site-header">
+    <div class="site-header-inner">
+      <button id="logo-home" class="site-logo" type="button" aria-label="Ruang Baca, ke Beranda">Ruang Baca.</button>
+
+      <nav class="site-nav" aria-label="Navigasi halaman">
+        <button class="nav-link" id="home-tab" type="button" aria-selected="true">Beranda</button>
+        <button class="nav-link" id="today-tab" type="button" aria-selected="false">Hari ini</button>
+        <button class="nav-link" id="all-stories-tab" type="button" aria-selected="false">Semua Cerita</button>
+        <button class="nav-link" id="saved-tab" type="button" aria-selected="false">Saved</button>
+        <button class="nav-link" id="add-tab" type="button" aria-selected="false">Tambah Cerita</button>
+      </nav>
+
+      <div class="more-menu">
+        <button id="more-button" class="more-button" type="button" aria-label="Menu lainnya" aria-expanded="false" aria-controls="more-panel">
+          <svg width="20" height="20" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+            <circle cx="4" cy="10" r="1.7"/><circle cx="10" cy="10" r="1.7"/><circle cx="16" cy="10" r="1.7"/>
+          </svg>
+        </button>
+        <div id="more-panel" class="more-panel" hidden>
+          <button id="theme-toggle" class="more-item" type="button" aria-label="Ganti tema terang atau gelap">Mode gelap</button>
+          <button id="backup-tab" class="more-item" type="button" aria-selected="false">Backup</button>
+        </div>
+      </div>
+    </div>
+  </header>
   <script>
     (function () {
       var KEY = "ruangBacaThemeV1";
@@ -891,16 +915,20 @@
       });
     })();
   </script>
-  <section id="welcome-screen" class="welcome-screen" aria-label="Welcome">
-    <div class="welcome-content">
-      <h1>Hi! Welcome</h1>
-      <button id="start-reading" class="start-button" type="button">Start Reading</button>
-    </div>
-  </section>
-
-  <div id="app-content" class="app-content">
+   <div id="app-content" class="app-content">
     <main>
-      <header>
+      <section id="home-panel" class="view-panel home-panel" aria-labelledby="home-heading">
+        <h1 id="home-heading" class="home-title">A little reading,<br>a little inspiration.</h1>
+        <p class="home-subtitle">Setiap cerita punya cara sendiri<br>untuk membuat kita melihat dunia dari sudut yang berbeda.</p>
+        <button id="start-reading" class="start-button" type="button">
+          Mulai Membaca
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <path d="M5 12h14M13 6l6 6-6 6"/>
+          </svg>
+        </button>
+      </section>
+
+      <header class="page-header">
         <div class="eyebrow">Ruang baca pribadi</div>
 
         <div id="today-header" class="today-header">
@@ -920,15 +948,7 @@
         </div>
       </header>
 
-      <nav class="tabs" aria-label="Navigasi halaman">
-        <button class="tab-button" id="today-tab" type="button" aria-selected="true">Cerita Hari Ini</button>
-        <button class="tab-button" id="saved-tab" type="button" aria-selected="false">Saved</button>
-        <button class="tab-button" id="all-stories-tab" type="button" aria-selected="false">Semua Cerita</button>
-        <button class="tab-button" id="add-tab" type="button" aria-selected="false">Tambah Cerita</button>
-        <button class="tab-button" id="backup-tab" type="button" aria-selected="false">Backup</button>
-      </nav>
-
-      <section id="today-panel" class="view-panel" aria-labelledby="list-heading">
+      <section id="today-panel" class="view-panel" aria-labelledby="list-heading" hidden>
         <article class="daily-word" aria-labelledby="daily-word-heading">
           <div class="daily-word-top">
             <h2 id="daily-word-heading">Kata Hari Ini</h2>
@@ -1870,6 +1890,7 @@
 
     function setActiveTab(tabName) {
       const tabs = [
+        ["home", "home-tab", "home-panel"],
         ["today", "today-tab", "today-panel"],
         ["saved", "saved-tab", "saved-panel"],
         ["all-stories", "all-stories-tab", "all-stories-panel"],
@@ -1884,6 +1905,9 @@
       });
 
       document.getElementById("today-header").hidden = tabName !== "today";
+      document.body.dataset.view = tabName;
+      closeMoreMenu();
+      window.scrollTo(0, 0);
 
       if (tabName === "today") render();
       if (tabName === "saved") renderSaved();
@@ -2082,18 +2106,39 @@
       }
     }
 
-    document.getElementById("start-reading").addEventListener("click", () => {
-      document.body.classList.remove("welcome-active");
-      document.body.classList.add("is-entering");
+    document.getElementById("start-reading").addEventListener("click", () => setActiveTab("today"));
 
-      const app = document.getElementById("app-content");
-      requestAnimationFrame(() => {
-        app.classList.add("is-visible");
-        document.body.classList.remove("is-entering");
-      });
+    // ===== MENU "⋯" =====
+    const moreButton = document.getElementById("more-button");
+    const morePanel = document.getElementById("more-panel");
 
-      setActiveTab("today");
+    function closeMoreMenu() {
+      morePanel.hidden = true;
+      moreButton.setAttribute("aria-expanded", "false");
+    }
+
+    moreButton.addEventListener("click", event => {
+      event.stopPropagation();
+      const willOpen = morePanel.hidden;
+      morePanel.hidden = !willOpen;
+      moreButton.setAttribute("aria-expanded", String(willOpen));
     });
+
+    document.addEventListener("click", event => {
+      if (!morePanel.hidden && !event.target.closest(".more-menu")) closeMoreMenu();
+    });
+
+    document.addEventListener("keydown", event => {
+      if (event.key === "Escape" && !morePanel.hidden) {
+        closeMoreMenu();
+        moreButton.focus();
+      }
+    });
+
+    document.getElementById("theme-toggle").addEventListener("click", closeMoreMenu);
+
+    document.getElementById("home-tab").addEventListener("click", () => setActiveTab("home"));
+    document.getElementById("logo-home").addEventListener("click", () => setActiveTab("home"));
 
     document.getElementById("today-tab").addEventListener("click", () => setActiveTab("today"));
     document.getElementById("saved-tab").addEventListener("click", () => setActiveTab("saved"));
@@ -2138,6 +2183,7 @@
     render();
     renderSaved();
     renderAllStories();
+    setActiveTab("home");
   </script>
 </body>
 </html>
