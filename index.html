@@ -649,8 +649,107 @@
       color: var(--muted);
       text-align: center;
     }
- 
-    /* ===== TAMBAH CERITA ===== */
+
+    .collection-list {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      grid-template-rows: repeat(var(--rows, 10), auto);
+      grid-auto-flow: column;
+      column-gap: 64px;
+    }
+
+    .collection-item {
+      display: grid;
+      grid-template-columns: 48px minmax(0, 1fr) auto;
+      align-items: center;
+      gap: 20px;
+      padding: 14px 0;
+      border-bottom: 1px solid var(--line);
+      transition: opacity 160ms ease;
+    }
+
+    .collection-item.is-removed {
+      opacity: 0.45;
+    }
+
+    .collection-main {
+      min-width: 0;
+    }
+
+    .collection-title {
+      color: var(--ink);
+      font-size: 1.05rem;
+      line-height: 1.45;
+      text-decoration: none;
+      overflow-wrap: anywhere;
+    }
+
+    .collection-title:hover {
+      color: var(--accent);
+      text-decoration: underline;
+      text-decoration-thickness: 1px;
+      text-underline-offset: 3px;
+    }
+
+    .collection-category {
+      display: inline-block;
+      color: var(--muted);
+      font: 0.85rem var(--font-sans);
+      white-space: nowrap;
+    }
+
+    .collection-category::before {
+      content: "·";
+      margin: 0 10px;
+    }
+
+    .collection-category.is-wrapped {
+      display: block;
+    }
+
+    .collection-category.is-wrapped::before {
+      content: none;
+    }
+
+    .favorite-button {
+      display: grid;
+      place-items: center;
+      width: 34px;
+      height: 34px;
+      padding: 0;
+      border: 1px solid var(--line);
+      border-radius: 9px;
+      background: var(--paper);
+      color: var(--muted);
+      cursor: pointer;
+      font: 1.05rem/1 var(--font-sans);
+    }
+
+    .favorite-button:hover {
+      background: var(--soft);
+      color: var(--accent);
+    }
+
+    .favorite-button.is-favorite {
+      border-color: var(--accent);
+      color: var(--accent);
+    }
+
+    @media (hover: hover) {
+      .collection-item .favorite-button {
+        opacity: 0;
+        pointer-events: none;
+        transition: opacity 150ms ease;
+      }
+
+      .collection-item:hover .favorite-button,
+      .collection-item:focus-within .favorite-button,
+      .collection-item.is-removed .favorite-button {
+        opacity: 1;
+        pointer-events: auto;
+      }
+    }
+
     .page-title {
       margin: 6px 0 6px;
       font-size: clamp(2.3rem, 5vw, 3.4rem);
@@ -1039,6 +1138,7 @@
       .site-header-inner { gap: 12px; }
       .site-logo { font-size: 1.3rem; }
       .nav-link { padding: 0 10px; font-size: 0.85rem; }
+      .collection-list { grid-template-columns: 1fr; grid-template-rows: none; grid-auto-flow: row; }
     }
  
     @media (max-width: 600px) {
@@ -1082,6 +1182,7 @@
         <button class="nav-link" id="home-tab" type="button" aria-selected="true">Beranda</button>
         <button class="nav-link" id="today-tab" type="button" aria-selected="false">Hari ini</button>
         <button class="nav-link" id="all-stories-tab" type="button" aria-selected="false">Semua Cerita</button>
+        <button class="nav-link" id="collection-tab" type="button" aria-selected="false">Koleksi</button>
         <button class="nav-link" id="saved-tab" type="button" aria-selected="false">Saved</button>
         <button class="nav-link" id="add-tab" type="button" aria-selected="false">Tambah Cerita</button>
       </nav>
@@ -1234,6 +1335,13 @@
         <nav id="all-story-pagination" class="pagination" aria-label="Halaman daftar cerita"></nav>
       </section>
 
+      <section id="collection-panel" class="view-panel" aria-labelledby="collection-heading" hidden>
+        <h2 id="collection-heading" class="page-title">Koleksi</h2>
+        <p class="page-subtitle">Cerita favoritmu.</p>
+        <div id="collection-list" class="collection-list"></div>
+        <nav id="collection-pagination" class="pagination" aria-label="Halaman koleksi"></nav>
+      </section>
+
       <section id="add-panel" class="view-panel" aria-labelledby="add-heading" hidden>
         <h2 id="add-heading" class="page-title">Tambah Cerita</h2>
         <p class="page-subtitle">Simpan cerita favoritmu.</p>
@@ -1354,6 +1462,7 @@
     const DAILY_WORD_STORAGE_KEY = "ruangBacaDailyWordV1";
     const STORY_DATES_STORAGE_KEY = "ruangBacaStoryDatesV1";
     const STORY_META_STORAGE_KEY = "ruangBacaStoryMetaV1";
+    const FAVORITES_STORAGE_KEY = "ruangBacaFavoritesV1";
 
     const PLATFORMS = [
       { value: "medium", label: "Medium" },
@@ -1610,6 +1719,63 @@
       return safeSetItem(STORY_META_STORAGE_KEY, JSON.stringify(storyMeta));
     }
 
+    function cleanFavorites(raw) {
+      if (!Array.isArray(raw)) return [];
+      const seen = new Set();
+      const result = [];
+      raw.forEach(item => {
+        if (!item || typeof item.url !== "string" || !/^https?:\/\//i.test(item.url)) return;
+        if (seen.has(item.url)) return;
+        seen.add(item.url);
+        const addedAt = typeof item.addedAt === "string" && !Number.isNaN(Date.parse(item.addedAt))
+          ? item.addedAt
+          : new Date(0).toISOString();
+        result.push({ url: item.url, addedAt });
+      });
+      return result;
+    }
+
+    function loadFavorites() {
+      try {
+        const raw = safeGetItem(FAVORITES_STORAGE_KEY);
+        return cleanFavorites(raw ? JSON.parse(raw) : null);
+      } catch (error) {
+        console.warn("Data koleksi tidak dapat dibaca.", error);
+        return [];
+      }
+    }
+
+    function saveFavorites() {
+      return safeSetItem(FAVORITES_STORAGE_KEY, JSON.stringify(favorites));
+    }
+
+    function isFavorite(url) {
+      return favorites.some(item => item.url === url);
+    }
+
+    const removedFavoriteDates = new Map();
+
+    function setFavorite(url, on) {
+      const previous = favorites;
+
+      if (on) {
+        if (isFavorite(url)) return true;
+        favorites = [...favorites, { url, addedAt: removedFavoriteDates.get(url) || new Date().toISOString() }];
+      } else {
+        const item = favorites.find(entry => entry.url === url);
+        if (!item) return true;
+        removedFavoriteDates.set(url, item.addedAt);
+        favorites = favorites.filter(entry => entry.url !== url);
+      }
+
+      if (!saveFavorites()) {
+        favorites = previous;
+        alert("Koleksi tidak dapat disimpan di browser.");
+        return false;
+      }
+      return true;
+    }
+
     function detectPlatform(url) {
       try {
         const host = new URL(url).hostname.toLowerCase();
@@ -1635,6 +1801,9 @@
     let currentStoryFilter = "all";
     let storyDates = loadStoryDates();
     let storyMeta = loadStoryMeta();
+    let favorites = loadFavorites();
+    let currentCollectionPage = 1;
+    const collectionPending = new Set();
     let platformTouched = false;
     let currentStoryPage = 1;
 
@@ -1923,7 +2092,20 @@
           render();
         });
 
-        actionButtons.append(saveQuoteButton, swapButton, label);
+        const favorite = isFavorite(story.url);
+        const favoriteButton = document.createElement("button");
+        favoriteButton.className = `favorite-button${favorite ? " is-favorite" : ""}`;
+        favoriteButton.type = "button";
+        favoriteButton.textContent = favorite ? "★" : "☆";
+        favoriteButton.setAttribute("aria-pressed", String(favorite));
+        favoriteButton.setAttribute("aria-label", `${favorite ? "Hapus dari Koleksi" : "Simpan ke Koleksi"}: ${story.title}`);
+        favoriteButton.title = favorite ? "Hapus dari Koleksi" : "Simpan ke Koleksi";
+        favoriteButton.addEventListener("click", () => {
+          setFavorite(story.url, !isFavorite(story.url));
+          render();
+        });
+
+        actionButtons.append(saveQuoteButton, swapButton, favoriteButton, label);
         actions.appendChild(actionButtons);
 
         const editor = document.createElement("form");
@@ -2233,12 +2415,14 @@
       return [1, "…", current - 1, current, current + 1, "…", total];
     }
 
-    function renderStoryPagination(container, totalPages) {
+    function renderStoryPagination(container, totalPages, currentPage = currentStoryPage, onGo = page => {
+      currentStoryPage = page;
+      renderAllStories();
+    }) {
       if (totalPages <= 1) return;
 
       function goTo(page) {
-        currentStoryPage = page;
-        renderAllStories();
+        onGo(page);
         window.scrollTo(0, 0);
       }
 
@@ -2254,10 +2438,10 @@
       }
 
       container.appendChild(
-        arrowButton("Halaman sebelumnya", "M15 6l-6 6 6 6", currentStoryPage - 1, currentStoryPage === 1)
+        arrowButton("Halaman sebelumnya", "M15 6l-6 6 6 6", currentPage - 1, currentPage === 1)
       );
 
-      getPageItems(currentStoryPage, totalPages).forEach(page => {
+      getPageItems(currentPage, totalPages).forEach(page => {
         if (page === "…") {
           const gap = document.createElement("span");
           gap.className = "page-gap";
@@ -2271,15 +2455,117 @@
         button.type = "button";
         button.textContent = String(page);
         button.setAttribute("aria-label", `Halaman ${page}`);
-        if (page === currentStoryPage) button.setAttribute("aria-current", "page");
+        if (page === currentPage) button.setAttribute("aria-current", "page");
         button.addEventListener("click", () => goTo(page));
         container.appendChild(button);
       });
 
       container.appendChild(
-        arrowButton("Halaman berikutnya", "M9 6l6 6-6 6", currentStoryPage + 1, currentStoryPage === totalPages)
+        arrowButton("Halaman berikutnya", "M9 6l6 6-6 6", currentPage + 1, currentPage === totalPages)
       );
     }
+
+    function renderCollection() {
+      const list = document.getElementById("collection-list");
+      const pagination = document.getElementById("collection-pagination");
+      list.replaceChildren();
+      pagination.replaceChildren();
+
+      const storiesByUrl = new Map(getAllStories().map(story => [story.url, story]));
+      const rows = [
+        ...favorites.map(item => ({ ...item, active: true })),
+        ...[...collectionPending]
+          .filter(url => !isFavorite(url))
+          .map(url => ({ url, addedAt: removedFavoriteDates.get(url) || "", active: false }))
+      ]
+        .filter(item => storiesByUrl.has(item.url))
+        .sort((a, b) => a.addedAt.localeCompare(b.addedAt));
+
+      if (rows.length === 0) {
+        list.style.removeProperty("--rows");
+        const empty = document.createElement("div");
+        empty.className = "empty";
+        empty.style.gridColumn = "1 / -1";
+        empty.textContent = "Belum ada cerita favorit. Tandai cerita dengan ☆ untuk menyimpannya di sini.";
+        list.appendChild(empty);
+        return;
+      }
+
+      const totalPages = Math.ceil(rows.length / ALL_STORIES_PER_PAGE);
+      currentCollectionPage = Math.min(Math.max(1, currentCollectionPage), totalPages);
+      const start = (currentCollectionPage - 1) * ALL_STORIES_PER_PAGE;
+      const pageRows = rows.slice(start, start + ALL_STORIES_PER_PAGE);
+      list.style.setProperty("--rows", String(Math.ceil(pageRows.length / 2)));
+
+      pageRows.forEach((item, index) => {
+        const story = storiesByUrl.get(item.url);
+        const row = document.createElement("article");
+        row.className = `collection-item${item.active ? "" : " is-removed"}`;
+
+        const number = document.createElement("span");
+        number.className = "all-story-number";
+        number.textContent = String(start + index + 1).padStart(2, "0");
+
+        const main = document.createElement("div");
+        main.className = "collection-main";
+
+        const link = document.createElement("a");
+        link.className = "collection-title";
+        link.href = story.url;
+        link.target = "_blank";
+        link.rel = "noopener";
+        link.textContent = story.title;
+        main.appendChild(link);
+
+        const categoryValue = getStoryMeta(story).category;
+        const category = CATEGORIES.find(entry => entry.value === categoryValue);
+        if (category) {
+          const label = document.createElement("span");
+          label.className = "collection-category";
+          label.textContent = category.label;
+          main.appendChild(label);
+        }
+
+        const button = document.createElement("button");
+        button.className = `favorite-button${item.active ? " is-favorite" : ""}`;
+        button.type = "button";
+        button.textContent = item.active ? "★" : "☆";
+        button.setAttribute("aria-pressed", String(item.active));
+        button.setAttribute("aria-label", `${item.active ? "Hapus dari Koleksi" : "Batalkan, simpan lagi ke Koleksi"}: ${story.title}`);
+        button.title = item.active ? "Hapus dari Koleksi" : "Simpan lagi";
+        button.addEventListener("click", () => {
+          if (item.active) {
+            if (setFavorite(item.url, false)) collectionPending.add(item.url);
+          } else if (setFavorite(item.url, true)) {
+            collectionPending.delete(item.url);
+          }
+          renderCollection();
+          render();
+        });
+
+        row.append(number, main, button);
+        list.appendChild(row);
+      });
+
+      renderStoryPagination(pagination, totalPages, currentCollectionPage, page => {
+        currentCollectionPage = page;
+        renderCollection();
+      });
+
+      markWrappedCategories();
+    }
+
+    function markWrappedCategories() {
+      document.querySelectorAll(".collection-category").forEach(label => {
+        label.classList.remove("is-wrapped");
+        const titleLines = label.previousElementSibling.getClientRects();
+        if (titleLines.length === 0) return;
+        const lastLine = titleLines[titleLines.length - 1];
+        label.classList.toggle("is-wrapped", label.getBoundingClientRect().top > lastLine.bottom - 2);
+      });
+    }
+
+    window.addEventListener("resize", () => requestAnimationFrame(markWrappedCategories));
 
     function deleteCustomStory(storyId) {
       const customIndex = customStories.findIndex(story => story.id === storyId);
@@ -2318,6 +2604,8 @@
       saveStoryDates();
       delete storyMeta[storyId];
       saveStoryMeta();
+      favorites = favorites.filter(item => item.url !== story.url);
+      saveFavorites();
 
       prepareToday();
       render();
@@ -2393,6 +2681,7 @@
         ["today", "today-tab", "today-panel"],
         ["saved", "saved-tab", "saved-panel"],
         ["all-stories", "all-stories-tab", "all-stories-panel"],
+        ["collection", "collection-tab", "collection-panel"],
         ["add", "add-tab", "add-panel"],
         ["backup", "backup-tab", "backup-panel"]
       ];
@@ -2411,6 +2700,10 @@
       if (tabName === "today") render();
       if (tabName === "saved") renderSaved();
       if (tabName === "all-stories") renderAllStories();
+      if (tabName === "collection") {
+        collectionPending.clear();
+        renderCollection();
+      }
     }
 
     function downloadBackup() {
@@ -2422,6 +2715,7 @@
         customStories,
         storyDates,
         storyMeta,
+        favorites,
         progress: {
           read: Array.isArray(state.read) ? state.read : [],
           round: state.round,
@@ -2579,12 +2873,15 @@
           if (metaSource[story.id]) restoredStoryMeta[story.id] = metaSource[story.id];
         });
 
+        const restoredFavorites = data.favorites !== undefined ? cleanFavorites(data.favorites) : favorites;
+
         const oldState = state;
         const oldQuotes = quotes;
         const oldCustomStories = customStories;
         const oldDailyWord = dailyWord;
         const oldStoryDates = storyDates;
         const oldStoryMeta = storyMeta;
+        const oldFavorites = favorites;
 
         state = restoredState;
         quotes = restoredQuotes;
@@ -2592,6 +2889,7 @@
         dailyWord = restoredDailyWord;
         storyDates = restoredStoryDates;
         storyMeta = restoredStoryMeta;
+        favorites = restoredFavorites;
 
         const progressSaved = saveState();
         const quotesSaved = saveQuotes();
@@ -2599,14 +2897,16 @@
         const dailyWordSaved = saveDailyWord();
         const storyDatesSaved = saveStoryDates();
         const storyMetaSaved = saveStoryMeta();
+        const favoritesSaved = saveFavorites();
 
-        if (!progressSaved || !quotesSaved || !customStoriesSaved || !dailyWordSaved || !storyDatesSaved || !storyMetaSaved) {
+        if (!progressSaved || !quotesSaved || !customStoriesSaved || !dailyWordSaved || !storyDatesSaved || !storyMetaSaved || !favoritesSaved) {
           state = oldState;
           quotes = oldQuotes;
           customStories = oldCustomStories;
           dailyWord = oldDailyWord;
           storyDates = oldStoryDates;
           storyMeta = oldStoryMeta;
+          favorites = oldFavorites;
 
           saveState();
           saveQuotes();
@@ -2614,6 +2914,7 @@
           saveDailyWord();
           saveStoryDates();
           saveStoryMeta();
+          saveFavorites();
 
           notice.textContent = "Restore gagal karena browser tidak dapat menyimpan data. Data sebelumnya dipulihkan jika memungkinkan.";
           return;
@@ -2665,6 +2966,7 @@
     document.getElementById("today-tab").addEventListener("click", () => setActiveTab("today"));
     document.getElementById("saved-tab").addEventListener("click", () => setActiveTab("saved"));
     document.getElementById("all-stories-tab").addEventListener("click", () => setActiveTab("all-stories"));
+    document.getElementById("collection-tab").addEventListener("click", () => setActiveTab("collection"));
     document.getElementById("add-tab").addEventListener("click", () => setActiveTab("add"));
     document.getElementById("backup-tab").addEventListener("click", () => setActiveTab("backup"));
 
