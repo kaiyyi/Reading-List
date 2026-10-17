@@ -1761,7 +1761,6 @@
       } else {
         const item = favorites.find(entry => entry.url === url);
         if (!item) return true;
-        removedFavoriteDates.set(url, item.addedAt);
         favorites = favorites.filter(entry => entry.url !== url);
       }
 
@@ -1800,7 +1799,6 @@
     let storyMeta = loadStoryMeta();
     let favorites = loadFavorites();
     let currentCollectionPage = 1;
-    const collectionPending = new Set();
     let platformTouched = false;
     let currentStoryPage = 1;
 
@@ -2368,6 +2366,21 @@
         const actions = document.createElement("div");
         actions.className = "all-story-actions";
 
+        const favorite = isFavorite(item.story.url);
+        const favoriteButton = document.createElement("button");
+        favoriteButton.className = `favorite-button${favorite ? " is-favorite" : ""}`;
+        favoriteButton.type = "button";
+        favoriteButton.textContent = favorite ? "★" : "☆";
+        favoriteButton.setAttribute("aria-pressed", String(favorite));
+        favoriteButton.setAttribute("aria-label", `${favorite ? "Hapus dari Koleksi" : "Simpan ke Koleksi"}: ${item.story.title}`);
+        favoriteButton.title = favorite ? "Hapus dari Koleksi" : "Simpan ke Koleksi";
+        favoriteButton.addEventListener("click", () => {
+          setFavorite(item.story.url, !isFavorite(item.story.url));
+          renderAllStories();
+          render();
+        });
+        actions.appendChild(favoriteButton);
+
         if (item.isRead) {
           const undoButton = document.createElement("button");
           undoButton.className = "action-button";
@@ -2469,15 +2482,7 @@
       pagination.replaceChildren();
 
       const storiesByUrl = new Map(getAllStories().map(story => [story.url, story]));
-      const rows = [
-        ...favorites.map(item => ({ ...item, active: true })),
-        ...[...collectionPending]
-          .filter(url => !isFavorite(url))
-          .map(url => ({ url, addedAt: removedFavoriteDates.get(url) || "", active: false }))
-      ]
-        .filter(item => storiesByUrl.has(item.url))
-        .sort((a, b) => a.addedAt.localeCompare(b.addedAt));
-
+      const rows = favorites.filter(item => storiesByUrl.has(item.url));
       if (rows.length === 0) {
         list.style.removeProperty("--rows");
         const empty = document.createElement("div");
@@ -2497,7 +2502,7 @@
       pageRows.forEach((item, index) => {
         const story = storiesByUrl.get(item.url);
         const row = document.createElement("article");
-        row.className = `collection-item${item.active ? "" : " is-removed"}`;
+        row.className = "collection-item";
 
         const number = document.createElement("span");
         number.className = "all-story-number";
@@ -2524,18 +2529,14 @@
         }
 
         const button = document.createElement("button");
-        button.className = `favorite-button${item.active ? " is-favorite" : ""}`;
+        button.className = "favorite-button is-favorite";
         button.type = "button";
-        button.textContent = item.active ? "★" : "☆";
-        button.setAttribute("aria-pressed", String(item.active));
-        button.setAttribute("aria-label", `${item.active ? "Hapus dari Koleksi" : "Batalkan, simpan lagi ke Koleksi"}: ${story.title}`);
-        button.title = item.active ? "Hapus dari Koleksi" : "Simpan lagi";
+        button.textContent = "★";
+        button.setAttribute("aria-pressed", "true");
+        button.setAttribute("aria-label", `Hapus dari Koleksi: ${story.title}`);
+        button.title = "Hapus dari Koleksi";
         button.addEventListener("click", () => {
-          if (item.active) {
-            if (setFavorite(item.url, false)) collectionPending.add(item.url);
-          } else if (setFavorite(item.url, true)) {
-            collectionPending.delete(item.url);
-          }
+          setFavorite(item.url, false);
           renderCollection();
           render();
         });
@@ -2697,10 +2698,7 @@
       if (tabName === "today") render();
       if (tabName === "saved") renderSaved();
       if (tabName === "all-stories") renderAllStories();
-      if (tabName === "collection") {
-        collectionPending.clear();
-        renderCollection();
-      }
+      if (tabName === "collection") renderCollection();
     }
 
     function downloadBackup() {
