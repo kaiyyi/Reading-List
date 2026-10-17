@@ -721,13 +721,12 @@
     }
 
     .favorite-button:hover {
-      background: var(--soft);
-      color: var(--accent);
-    }
-
-    .favorite-button:hover {
       color: var(--accent);
       transform: scale(1.12);
+    }
+
+    .favorite-button.is-favorite {
+      color: var(--accent);
     }
 
     @media (hover: hover) {
@@ -738,7 +737,7 @@
       }
 
       .collection-item:hover .favorite-button,
-      .collection-item:focus-within .favorite-button, {
+      .collection-item:focus-within .favorite-button {
         opacity: 1;
         pointer-events: auto;
       }
