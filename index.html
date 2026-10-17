@@ -590,11 +590,41 @@
  
     .quote-story-link {
       display: inline-block;
-      margin-bottom: 14px;
+      justify-self: start;
       color: var(--accent);
       font: 600 0.9rem var(--font-sans);
       text-decoration-thickness: 1px;
       text-underline-offset: 3px;
+    }
+     
+    .quote-card {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) auto;
+      align-items: center;
+      column-gap: 16px;
+    }
+
+    .quote-text {
+      grid-column: 1 / -1;
+    }
+
+    .quote-card .quote-actions .action-button {
+      padding: 5px 10px;
+      font-size: 0.78rem;
+    }
+
+    @media (hover: hover) {
+      .quote-card .quote-actions {
+        opacity: 0;
+        pointer-events: none;
+        transition: opacity 150ms ease;
+      }
+
+      .quote-card:hover .quote-actions,
+      .quote-card:focus-within .quote-actions {
+        opacity: 1;
+        pointer-events: auto;
+      }
     }
  
     .action-button {
