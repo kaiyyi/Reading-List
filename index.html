@@ -620,36 +620,115 @@
       text-align: center;
     }
  
-    .form-card {
-      display: grid;
-      gap: 14px;
-      margin-bottom: 24px;
-      padding: 19px 20px;
-      border: 1px solid var(--line);
-      border-radius: 14px;
-      background: var(--paper);
+    /* ===== TAMBAH CERITA ===== */
+    .page-title {
+      margin: 6px 0 6px;
+      font-size: clamp(2.3rem, 5vw, 3.4rem);
+      font-weight: 400;
+      letter-spacing: -0.03em;
+      line-height: 1.1;
     }
- 
+
+    .page-subtitle {
+      margin: 0 0 30px;
+      color: var(--muted);
+      font: 1.15rem/1.5 var(--font-sans);
+    }
+
+    .add-form {
+      display: grid;
+      gap: 22px;
+    }
+
+    .form-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 32px;
+    }
+
     .form-field {
       display: grid;
-      gap: 6px;
+      gap: 10px;
+      color: var(--ink);
+      font: 1rem var(--font-sans);
+    }
+
+    .form-field input,
+    .form-field select {
+      width: 100%;
+      height: 54px;
+      padding: 0 18px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: var(--paper);
+      color: var(--ink);
+      font: 1rem var(--font-sans);
+      transition: border-color 160ms ease;
+    }
+
+    .form-field input::placeholder {
       color: var(--muted);
-      font: 0.86rem var(--font-sans);
+      opacity: 0.85;
+    }
+
+    .form-field input:focus,
+    .form-field select:focus {
+      border-color: var(--accent);
+      outline: none;
+    }
+
+    .select-wrap {
+      position: relative;
+      display: block;
+      color: var(--muted);
+    }
+
+    .form-field select {
+      padding-right: 48px;
+      appearance: none;
+      -webkit-appearance: none;
+      cursor: pointer;
+    }
+
+    .form-field select:has(> option[value=""]:checked) {
+      color: var(--muted);
+    }
+
+    .form-field select option {
+      color: var(--ink);
+    }
+
+    .select-wrap svg {
+      position: absolute;
+      top: 50%;
+      right: 18px;
+      transform: translateY(-50%);
+      pointer-events: none;
+    }
+
+    .form-submit {
+      width: 100%;
+      height: 56px;
+      margin-top: 4px;
+      border: 0;
+      border-radius: 8px;
+      background: var(--accent);
+      color: var(--on-accent);
+      cursor: pointer;
+      font: 400 1.08rem var(--font-sans);
+      transition: background 160ms ease;
+    }
+
+    .add-form .form-submit:hover {
+      background: var(--accent-hover);
     }
  
     .form-field input {
       font: 0.95rem var(--font-sans);
     }
  
-    .form-submit {
-      justify-self: start;
-      border-color: var(--accent);
-      background: var(--accent);
-      color: var(--on-accent);
-    }
- 
-    .form-submit:hover {
-      background: var(--accent-hover);
+    .form-field input {
+      font: 0.95rem var(--font-sans);
     }
  
     .form-message {
@@ -942,6 +1021,7 @@
  
     @media (max-width: 600px) {
       main { padding-top: 38px; }
+      .form-row { grid-template-columns: 1fr; gap: 22px; }
       .story { padding: 16px; }
       .story-actions {
         align-items: flex-start;
@@ -1133,22 +1213,43 @@
       </section>
 
       <section id="add-panel" class="view-panel" aria-labelledby="add-heading" hidden>
-        <div class="section-heading">
-          <h2 id="add-heading">Tambah Cerita</h2>
-        </div>
+        <h2 id="add-heading" class="page-title">Tambah Cerita</h2>
+        <p class="page-subtitle">Simpan cerita favoritmu.</p>
 
-        <form id="add-story-form" class="form-card" novalidate>
+        <form id="add-story-form" class="add-form" novalidate>
           <label class="form-field">
-            Judul
-            <input id="new-story-title" name="title" type="text" autocomplete="off" required>
+            Judul Cerita
+            <input id="new-story-title" name="title" type="text" autocomplete="off" placeholder="Masukkan judul cerita" required>
           </label>
 
           <label class="form-field">
-            Link
-            <input id="new-story-url" name="url" type="url" inputmode="url" placeholder="https://..." required>
+            Link Cerita
+            <input id="new-story-url" name="url" type="url" inputmode="url" autocomplete="off" placeholder="https://example.com/..." required>
           </label>
 
-          <button class="utility-button form-submit" type="submit">Tambah</button>
+          <div class="form-row">
+            <label class="form-field">
+              Platform / sumber
+              <span class="select-wrap">
+                <select id="new-story-platform" name="platform">
+                  <option value="">Pilih platform</option>
+                </select>
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg>
+              </span>
+            </label>
+
+            <label class="form-field">
+              Kategori
+              <span class="select-wrap">
+                <select id="new-story-category" name="category">
+                  <option value="">Pilih kategori</option>
+                </select>
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg>
+              </span>
+            </label>
+          </div>
+
+          <button class="form-submit" type="submit">Simpan Cerita</button>
           <p id="add-story-message" class="form-message" aria-live="polite"></p>
         </form>
       </section>
@@ -1230,6 +1331,77 @@
     const CUSTOM_STORIES_STORAGE_KEY = "ruangBacaCustomStoriesV1";
     const DAILY_WORD_STORAGE_KEY = "ruangBacaDailyWordV1";
     const STORY_DATES_STORAGE_KEY = "ruangBacaStoryDatesV1";
+    const STORY_META_STORAGE_KEY = "ruangBacaStoryMetaV1";
+
+    const PLATFORMS = [
+      { value: "medium", label: "Medium" },
+      { value: "substack", label: "Substack" },
+      { value: "other", label: "Lainnya" }
+    ];
+
+    const CATEGORIES = [
+      { value: "love", label: "Love & Longing" },
+      { value: "heartbreak", label: "Heartbreak & Letting Go" },
+      { value: "family", label: "Family" },
+      { value: "spirituality", label: "Spirituality" },
+      { value: "healing", label: "Healing" },
+      { value: "mental-health", label: "Mental Health" },
+      { value: "society", label: "Opinion & Society" },
+      { value: "others", label: "Others" }
+    ];
+    
+    const BUILTIN_STORY_CATEGORIES = {
+      "https://substack.com/@leidiinspired/note/p-155844060?utm_source=notes-share-action&r=96stsm": "healing",
+      "https://substack.com/@senyapkalbu/note/p-206531509?utm_source=notes-share-action&r=96stsm": "love",
+      "https://substack.com/@lefranhan/note/p-210616038?utm_source=notes-share-action&r=96stsm": "love",
+      "https://substack.com/@rainthalogy/note/p-216572419?utm_source=notes-share-action&r=96stsm": "love",
+      "https://substack.com/@serayumelintangbumi/note/p-214322437?utm_source=notes-share-action&r=96stsm": "society",
+      "https://substack.com/@soulaced/note/p-206441589?utm_source=notes-share-action&r=96stsm": "love",
+      "https://substack.com/@heybii/note/p-213486122?utm_source=notes-share-action&r=96stsm": "healing",
+      "https://substack.com/@ceciliia/note/p-184772623?utm_source=notes-share-action&r=96stsm": "mental-health",
+      "https://substack.com/@xahraa/note/p-204352546?utm_source=notes-share-action&r=96stsm": "mental-health",
+      "https://substack.com/@prisnarafi/note/p-216137902?utm_source=notes-share-action&r=96stsm": "love",
+      "https://substack.com/@lettersfromjingga/note/p-215496903?utm_source=notes-share-action&r=96stsm": "spirituality",
+      "https://substack.com/@4yudyaa/note/p-209793270?utm_source=notes-share-action&r=96stsm": "mental-health",
+      "https://substack.com/@miftachansari/note/p-210989547?utm_source=notes-share-action&r=96stsm": "society",
+      "https://substack.com/@serayumelintangbumi/note/p-212158179?utm_source=notes-share-action&r=96stsm": "family",
+      "https://substack.com/@queqila/note/p-190691546?utm_source=notes-share-action&r=96stsm": "spirituality",
+      "https://substack.com/@wheremyheartwrites/note/p-179832105?utm_source=notes-share-action&r=96stsm": "spirituality",
+      "https://substack.com/@baemerry/note/p-216898688?utm_source=notes-share-action&r=96stsm": "love",
+      "https://substack.com/@stafianm/note/p-212996630?utm_source=notes-share-action&r=96stsm": "love",
+      "https://substack.com/@who0isnancy/note/p-217175364?utm_source=notes-share-action&r=96stsm": "heartbreak",
+      "https://substack.com/@strawberiesdiary/note/p-216534862?utm_source=notes-share-action&r=96stsm": "love",
+      "https://substack.com/@errornastar/note/p-212299694?utm_source=notes-share-action&r=96stsm": "mental-health",
+      "https://substack.com/@dildila/note/p-211491939?utm_source=notes-share-action&r=96stsm": "healing",
+      "https://substack.com/@selasarkalalily/note/p-213120211?utm_source=notes-share-action&r=96stsm": "heartbreak",
+      "https://substack.com/@iwianggita/note/p-202124769?utm_source=notes-share-action&r=96stsm": "others",
+      "https://substack.com/@underwillows/note/p-203067686?utm_source=notes-share-action&r=96stsm": "family",
+      "https://substack.com/@feifeiwrites/note/p-197335581?utm_source=notes-share-action&r=96stsm": "heartbreak",
+      "https://substack.com/@ansaaksaa/note/p-212980966?utm_source=notes-share-action&r=96stsm": "love",
+      "https://substack.com/@bloomoire/note/p-214392968?utm_source=notes-share-action&r=96stsm": "love",
+      "https://substack.com/@winterfern/note/p-216384523?utm_source=notes-share-action&r=96stsm": "heartbreak",
+      "https://substack.com/@selasarkalalily/note/p-211507699?utm_source=notes-share-action&r=96stsm": "love",
+      "https://substack.com/@snctuary/note/p-209641222?utm_source=notes-share-action&r=96stsm": "love",
+      "https://substack.com/@anadelmarwrites/note/p-186897797?utm_source=notes-share-action&r=96stsm": "spirituality",
+      "https://substack.com/@xwordsmith/note/p-215852604?utm_source=notes-share-action&r=96stsm": "family",
+      "https://substack.com/@achaej/note/p-208987715?utm_source=notes-share-action&r=96stsm": "heartbreak",
+      "https://substack.com/@notesbytasia/note/p-214313476?utm_source=notes-share-action&r=96stsm": "love",
+      "https://substack.com/@byu777/note/p-215148182?utm_source=notes-share-action&r=96stsm": "love",
+      "https://substack.com/@salsaamelia/note/p-215653050?utm_source=notes-share-action&r=96stsm": "love",
+      "https://substack.com/@1blueinwords/note/p-210722160?utm_source=notes-share-action&r=96stsm": "love",
+      "https://substack.com/@ansletters/note/p-212013947?utm_source=notes-share-action&r=96stsm": "family",
+      "https://substack.com/@selasarkalalily/note/p-215438838?utm_source=notes-share-action&r=96stsm": "healing",
+      "https://substack.com/@seizei/note/p-206972357?utm_source=notes-share-action&r=96stsm": "heartbreak",
+      "https://substack.com/@whosorva/note/p-212361736?utm_source=notes-share-action&r=96stsm": "healing",
+      "https://substack.com/@ayshehe/note/p-201756346?utm_source=notes-share-action&r=96stsm": "love",
+      "https://substack.com/@aosoradiary/note/p-215236248?utm_source=notes-share-action&r=96stsm": "love",
+      "https://substack.com/@bibabercerita/note/p-213254071?utm_source=notes-share-action&r=96stsm": "mental-health",
+      "https://substack.com/@fioresa/note/p-218200656?utm_source=notes-share-action&r=96stsm": "love",
+      "https://substack.com/@strawberiesdiary/note/p-217836048?utm_source=notes-share-action&r=96stsm": "love",
+      "https://substack.com/@mairias/note/p-211700896?utm_source=notes-share-action&r=96stsm": "healing",
+      "https://substack.com/@tiramaa/note/p-216234562?utm_source=notes-share-action&r=96stsm": "spirituality",
+      "https://substack.com/@petalfaint/note/p-215381250?utm_source=notes-share-action&r=96stsm": "heartbreak"
+    };
     const ALL_STORIES_PER_PAGE = 20;
     const DAILY_COUNT = 5;
     const BACKUP_VERSION = 2;
@@ -1385,6 +1557,55 @@
     function saveStoryDates() {
       return safeSetItem(STORY_DATES_STORAGE_KEY, JSON.stringify(storyDates));
     }
+    
+    const PLATFORM_VALUES = new Set(PLATFORMS.map(item => item.value));
+    const CATEGORY_VALUES = new Set(CATEGORIES.map(item => item.value));
+
+    function cleanStoryMeta(raw) {
+      const result = {};
+      if (!raw || typeof raw !== "object" || Array.isArray(raw)) return result;
+      Object.keys(raw).forEach(id => {
+        const item = raw[id];
+        if (!item || typeof item !== "object") return;
+        const platform = PLATFORM_VALUES.has(item.platform) ? item.platform : "";
+        const category = CATEGORY_VALUES.has(item.category) ? item.category : "";
+        if (platform || category) result[id] = { platform, category };
+      });
+      return result;
+    }
+
+    function loadStoryMeta() {
+      try {
+        const raw = safeGetItem(STORY_META_STORAGE_KEY);
+        return cleanStoryMeta(raw ? JSON.parse(raw) : null);
+      } catch (error) {
+        console.warn("Data platform dan kategori tidak dapat dibaca.", error);
+        return {};
+      }
+    }
+
+    function saveStoryMeta() {
+      return safeSetItem(STORY_META_STORAGE_KEY, JSON.stringify(storyMeta));
+    }
+
+    function detectPlatform(url) {
+      try {
+        const host = new URL(url).hostname.toLowerCase();
+        if (host === "medium.com" || host.endsWith(".medium.com")) return "medium";
+        if (host === "substack.com" || host.endsWith(".substack.com")) return "substack";
+      } catch (error) {}
+      return "";
+    }
+
+    // Dipakai nanti oleh Koleksi: platform & kategori untuk cerita mana pun
+    function getStoryMeta(story) {
+      const saved = story.id ? storyMeta[story.id] : null;
+      return {
+        platform: (saved && saved.platform) || detectPlatform(story.url),
+        category: (saved && saved.category) || BUILTIN_STORY_CATEGORIES[story.url] || ""
+      };
+    }
+    }
 
     let state = loadState();
     let quotes = loadQuotes();
@@ -1392,6 +1613,8 @@
     let dailyWord = loadDailyWord();
     let currentStoryFilter = "all";
     let storyDates = loadStoryDates();
+    let storyMeta = loadStoryMeta();
+    let platformTouched = false;
     let currentStoryPage = 1;
 
     function getAllStories() {
@@ -2072,6 +2295,8 @@
 
       delete storyDates[storyId];
       saveStoryDates();
+      delete storyMeta[storyId];
+      saveStoryMeta();
 
       prepareToday();
       render();
@@ -2120,8 +2345,16 @@
       storyDates[newStory.id] = new Date().toISOString();
       saveStoryDates();
 
+      const platform = document.getElementById("new-story-platform").value;
+      const category = document.getElementById("new-story-category").value;
+      if (platform || category) {
+        storyMeta[newStory.id] = { platform, category };
+        saveStoryMeta();
+      }
+
       showAddMessage("Cerita berhasil ditambahkan.");
       document.getElementById("add-story-form").reset();
+      platformTouched = false;
 
       render();
       renderAllStories();
@@ -2167,6 +2400,7 @@
         quotes,
         customStories,
         storyDates,
+        storyMeta,
         progress: {
           read: Array.isArray(state.read) ? state.read : [],
           round: state.round,
@@ -2318,11 +2552,18 @@
           if (dateSource[story.id]) restoredStoryDates[story.id] = dateSource[story.id];
         });
 
+        const metaSource = data.storyMeta !== undefined ? cleanStoryMeta(data.storyMeta) : storyMeta;
+        const restoredStoryMeta = {};
+        validation.customStories.forEach(story => {
+          if (metaSource[story.id]) restoredStoryMeta[story.id] = metaSource[story.id];
+        });
+
         const oldState = state;
         const oldQuotes = quotes;
         const oldCustomStories = customStories;
         const oldDailyWord = dailyWord;
         const oldStoryDates = storyDates;
+        const oldStoryMeta = storyMeta;
 
         state = restoredState;
         quotes = restoredQuotes;
@@ -2335,19 +2576,22 @@
         const customStoriesSaved = saveCustomStories();
         const dailyWordSaved = saveDailyWord();
         const storyDatesSaved = saveStoryDates();
+        const storyMetaSaved = saveStoryMeta();
 
-        if (!progressSaved || !quotesSaved || !customStoriesSaved || !dailyWordSaved || !storyDatesSaved) {
+        if (!progressSaved || !quotesSaved || !customStoriesSaved || !dailyWordSaved || !storyDatesSaved || !storyMetaSaved) {
           state = oldState;
           quotes = oldQuotes;
           customStories = oldCustomStories;
           dailyWord = oldDailyWord;
           storyDates = oldStoryDates;
+          storyMeta = oldStoryMeta;
 
           saveState();
           saveQuotes();
           saveCustomStories();
           saveDailyWord();
           saveStoryDates();
+          saveStoryMeta();
 
           notice.textContent = "Restore gagal karena browser tidak dapat menyimpan data. Data sebelumnya dipulihkan jika memungkinkan.";
           return;
@@ -2408,6 +2652,24 @@
       renderAllStories();
     });
     document.getElementById("add-story-form").addEventListener("submit", addStory);
+
+    function fillSelect(selectId, items) {
+      const select = document.getElementById(selectId);
+      items.forEach(item => select.appendChild(new Option(item.label, item.value)));
+    }
+
+    fillSelect("new-story-platform", PLATFORMS);
+    fillSelect("new-story-category", CATEGORIES);
+
+    // Platform terisi otomatis dari link, kecuali sudah dipilih manual
+    document.getElementById("new-story-platform").addEventListener("change", () => {
+      platformTouched = true;
+    });
+
+    document.getElementById("new-story-url").addEventListener("input", event => {
+      if (platformTouched) return;
+      document.getElementById("new-story-platform").value = detectPlatform(event.target.value.trim());
+    });
 
     document.querySelectorAll(".filter-button").forEach(button => {
       button.addEventListener("click", () => {
