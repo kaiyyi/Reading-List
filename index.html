@@ -738,8 +738,7 @@
       }
 
       .collection-item:hover .favorite-button,
-      .collection-item:focus-within .favorite-button,
-      .collection-item.is-removed .favorite-button {
+      .collection-item:focus-within .favorite-button, {
         opacity: 1;
         pointer-events: auto;
       }
@@ -965,10 +964,15 @@
       gap: 6px;
       transition: opacity 150ms ease;
     }
-
     .all-story-actions .action-button {
       padding: 5px 10px;
       font-size: 0.78rem;
+    }
+
+    .all-story-actions .favorite-button {
+      width: 28px;
+      height: 28px;
+      font-size: 1.15rem;
     }
 
     @media (hover: hover) {
@@ -1748,14 +1752,12 @@
       return favorites.some(item => item.url === url);
     }
 
-    const removedFavoriteDates = new Map();
-
     function setFavorite(url, on) {
       const previous = favorites;
 
       if (on) {
         if (isFavorite(url)) return true;
-        favorites = [...favorites, { url, addedAt: removedFavoriteDates.get(url) || new Date().toISOString() }];
+        favorites = [...favorites, { url, addedAt: new Date().toISOString() }];
       } else {
         const item = favorites.find(entry => entry.url === url);
         if (!item) return true;
